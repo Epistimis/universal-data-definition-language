@@ -1,0 +1,462 @@
+dm Conceptual_Model  {
+	cdm FACE_Shared_Data_Model_Conceptual  {
+	cdm Observables {
+		observable NonPhysicalAddress "A scheme applied over a non-physical location/space used to delineate different elements or parts (e.g. IPv4, IPv4, telephone number)." ;
+		observable Metric "A function that defines a relationship between each pair of elements of a set." ;
+		observable Order "Order is an observable that describes a measure of the position of an element in a group of elements." ;
+		observable Polarization "The action of restricting the vibrations of a transverse wave, especially light, wholly or partially to one direction.";
+		observable Size "Size is an observable that describes the magnitude or number of a measurable or countable entity.";
+		observable Uncertainty "Not completely confident or sure. Used to describe the degree of uncertainty in a value.";
+		observable Color "The human perception of frequencies of light, characterized by the spectral density of the light.";
+		observable Gain "A multiplicative increase (or decrease, for values less than one) in the amount or rate of something.  This observable should only be used as an attribute of an Association.";
+		observable Sensitivity "The ratio of the output change to an input change.  This observable should only be used as an attribute of an Association.";
+		observable Probability "The extent to which something is likely to occur.  More precisely, it is the relative frequency of an outcome in the hypothetical limit of an infinite number of identical experiments.";
+		observable Efficiency "The ratio of useful output of a machine or process compared to its input.  This observable should only be used as an attribute of an Association.";
+		observable IndexOfRefraction "The ratio of the speed of light in vacuum to that in the medium.";
+
+		cdm AssociationObservables {
+			observable Ratio "The quantitative relation between two amounts showing the number of times one value contains or is contained within the other.  This should only be used within an Association and should identify the two participating attributes using the path attribute of the associated entity.";
+
+		}
+		cdm ProductObservables {
+			observable Image "A representation of the external form of an object.  Measurements should be referenced to an external standards.";
+			observable Video "The reproduction, display or broadcast of moving visual images.  Measurements should be referenced to an external standards.";
+			observable Audio "The reproduction or transmission of sound data.  Measurements should be referenced to an external standards.";
+		}
+		cdm AmountOfSubstance {
+			observable AmountOfSubstance "Quantity of elementary entities, such as atoms, molecules, electrons, and other particles.";
+			observable ChemicalConcentration "Amount of substance contained within a defined volume or mass.";
+		}
+
+		cdm Angle {
+			observable Angle "Divergence of two straight lines from a common point or of two planes from a common line.  This should typically be used within an Association indicating the angle between two associated entities. " ;
+		}
+		cdm Area {
+			observable ScalarArea "Magnitude of a surface space. " ;
+		}
+		cdm Counting {
+			observable Count "Total number of a collection of objects. " ;
+			observable Resolution "Describes the sharpness, fineness, or granularity of separation of the individual elements of a thing which can be produced or recorded. Examples are the separation of pixels in an image, or the separation of a chemical mixture into its component parts. " ;
+		}
+		cdm Density {
+			observable Density "Mass of a substance per unit volume. " ;
+			observable Humidity "Amount of water vapor in the atmosphere or in a gas. " ;
+		}
+
+		cdm State {
+			observable ConfigurationState "Captures the particular configuration condition relevant to an entity. " ;
+			observable HealthState "Condition of an item with respect to some purpose or use. " ;
+			observable Mode "A way or manner in which something occurs or is experienced, expressed, or done. " ;
+			observable OperationalState "The relative standing of any process, method or series of acts of a practical or mechanical nature. " ;
+			observable ValidityState "Indication of fitness of information with respect to some use or purpose. " ;
+		}
+		cdm Identifier {
+			observable Identifier "Distinguishes an item from other items.  The uniqueness of this identifier should be quantified in the realized measurement.  Identifiers may best be used in the context of an association to capture how one associated entity refers to another. " ;
+		}
+		cdm InformationElement "Abstract information that applies to attributes of an entity (e.g., text, diagrams, labels, etc.)" {
+			cdm Kind {
+				observable Kind "Describes the concept of a type descriptor. " ;
+			}
+			cdm Description {
+				observable Description "Summary level information about an item. " ;
+			}
+		}
+		cdm Length {
+			observable Distance "Amount of separation between two points. " ;
+			observable Extent "Dimensions of the bounding region encompassing the item. " ;
+		}
+		cdm Mass {
+			observable Mass "Amount of matter in a physical body (solid, liquid, gas) which determines the bodys resistance to being accelerated by a force and the strength of its mutual gravitational attraction with other bodies. " ;
+		}
+		cdm Orientation {
+			observable Orientation "Angular position of an object relative to a fixed reference frame that describes how the object is placed. " ;
+		}
+		cdm Position {
+			observable Position "Location of an item relative to a fixed reference frame. " ;
+		}
+		cdm Power {
+			observable Power "Rate at which work is performed or energy is converted. " ;
+		}
+
+		cdm Rate {
+			observable Acceleration "Rate of change of velocity per unit time. " ;
+			observable AngularAcceleration "Rate of change of angular velocity. " ;
+			observable AngularVelocity "Norm of a vector of angular motion of the target body. " ;
+			observable CountRate "Rate at which a total amount is accumulated over a time period. " ;
+			observable DataRate "Quantity of data transferred over a defined time period. " ;
+			observable MassFlowRate "Mass of substance which passes through a given surface per unit time. " ;
+			observable OrientationAcceleration "Rate of change in Orientation Velocity. " ;
+			observable OrientationVelocity "Rate of change in Orientation. " ;
+			observable ScalarAcceleration "Rate of change of speed. " ;
+			observable Speed "Rate at which an object covers a distance. " ;
+			observable TemporalFrequency "Number of occurrences of a repeating event per unit time. Events are assumed to have a uniform period. " ;
+			observable Velocity "Rate at which an object covers a distance in a specified direction. " ;
+		}
+		cdm Temperature {
+			observable Temperature "Average kinetic energy of particles in an item (i.e., how hot or cold the item is). " ;
+			observable TemperatureDelta "A change or difference between two temperatures. " ;
+		}
+		cdm Time {
+			observable CalendarTime "Position in time, a realization of which could be a specific date and time on a calendar. This is not to be used for time durations, which would be the difference between two time observables. " ;
+			observable Duration "Quantity of time, such as would be obtained from the difference between two specific date/times on a calendar (i.e., the difference between two CalendarTime observables). " ;
+		}
+		cdm Viscosity {
+			observable DynamicViscosity "Property of a fluid that expresses its resistance to shearing flows. Also called Shear Viscosity. " ;
+			observable KinematicViscosity "Property of a fluid that is the ratio of its resistance to shearing flows (i.e., its dynamic viscosity) to its density. " ;
+		}
+		cdm Volume {
+			observable ScalarVolume "Magnitude of a three dimensional space. " ;
+		}
+	}
+	cdm BasisEntities {
+		basis Encryption "A type of procedure, method, or mechanism of encryption. " ;
+		basis Path "A set of ordered adjacent points in a topological metric space " ;
+		basis Point "A position with zero dimension in a space " ;
+	}
+}
+ 
+ 
+    ldm FACE_Shared_Data_Model_Logical {
+	ldm CoordinateSystems {
+		ldm Cartesian {
+			coord Cartesian_Y_CoordSys "One dimensional Cartesian Y coordinate system." {
+				axis: "only one axis"
+				angleEq: "n/a"
+				distanceEq: "d = x2-x1 "
+				[ Cartesian_Y_CoordSysAxis]
+			};
+			coord Cartesian_Z_CoordSys "One dimensional Cartesian Zcoordinate system." {
+				axis: "There is only one axis"
+				angleEq: "n/a"
+				distanceEq: "d = x2-x1 "
+				[Cartesian_Z_CoordSysAxis]
+			};
+			coord Cartesian_X_CoordSys "One dimensional Cartesian coordinate system." {
+				axis: "There is only one axis."
+				angleEq: "n/a"
+				distanceEq: "d = x2-x1 "
+				[Cartesian_X_CoordSysAxis ]
+			};
+
+			coord Cartesian_2D_CoordSys "Two dimensional Cartesian coordinate system." {
+				axis: "Axes are orthogonal to each other."
+				angleEq: "theta = inverse cos ((a dot b)/(|a|*|b|)), where a and b are vectors."
+				distanceEq: "d=sqrt((x2-x1)^2+(y2-y1)^2) "
+				[Cartesian_X_CoordSysAxis Cartesian_Y_CoordSysAxis]
+			};
+			coord Cartesian_3D_CoordSys "Three dimensional Cartesian coordinate system." {
+				axis: "Axes are orthogonal to each other."
+				angleEq: "theta = inverse cos ((a dot b)/(|a|*|b|)), where a and b are vectors."
+				distanceEq: "d = sqrt((x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2) "
+				[Cartesian_X_CoordSysAxis Cartesian_Y_CoordSysAxis Cartesian_Z_CoordSysAxis]
+			};
+			coord Cartesian_3DPlusTime_CoordSys "3 dimensional Cartesian coordinate system with an additional (non-spatial) axis to represent time." {
+				axis: "Axes are orthogonal to each other."
+				angleEq: "theta = inverse cos ((a dot b)/(|a|*|b|)), where a and b are vectors."
+				distanceEq: "d = sqrt((x2-x1)^2 + (y2-y1)^2 + (z2-z1)^2) "
+				[Cartesian_T_CoordSysAxis Cartesian_X_CoordSysAxis Cartesian_Y_CoordSysAxis Cartesian_Z_CoordSysAxis]
+			};
+			csa Cartesian_T_CoordSysAxis "T (time) axis of Cartesian coordinate system " ;
+			csa Cartesian_X_CoordSysAxis "X Axis of Cartesian coordinate system. " ;
+			csa Cartesian_Y_CoordSysAxis "Y Axis of Cartesian coordinate system " ;
+			csa Cartesian_Z_CoordSysAxis "Z Axis of Cartesian coordinate system " ;
+
+		}
+		ldm FixedAxisRotations {
+			coord Rotation_Fixed_Psi_CoordSys "The independent Psi vector of a three axis rotational Coordinate System" 
+          	 {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Psi"
+				distanceEq: "NA "
+				[Rotation_Fixed_Psi_CoordSysAxis]
+			};
+			coord Rotation_Fixed_Theta_CoordSys "The independent Theta vector of a three axis rotational Coordinate System" {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Theta"
+				distanceEq: "NA "
+				[Rotation_Fixed_Theta_CoordSysAxis]
+			};
+			coord Rotation_Fixed_Phi_CoordSys "The independent Phi vector of a three axis rotational Coordinate System" {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Phi"
+				distanceEq: "NA "
+				[Rotation_Fixed_Phi_CoordSysAxis]
+			};
+			coord Rotation_Fixed_CoordSys "One fixed axis rotational Coordinate System" {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Psi"
+				distanceEq: "NA "
+				[Rotation_Fixed_Psi_CoordSysAxis]
+			};
+			coord Rotation_Fixed_2D_CoordSys "Two fixed axis rotational Coordinate System" {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Psi; Beta = Theta"
+				distanceEq: "NA "
+				[Rotation_Fixed_Psi_CoordSysAxis Rotation_Fixed_Theta_CoordSysAxis]
+			};
+			coord Rotation_Fixed_3D_CoordSys "Three fixed axis rotational Coordinate System" {
+				axis: "Right-handed orthogonal"
+				angleEq: "Alpha = Psi; Beta = Theta; Gamma = Phi"
+				distanceEq: "NA "
+				[Rotation_Fixed_Phi_CoordSysAxis Rotation_Fixed_Psi_CoordSysAxis Rotation_Fixed_Theta_CoordSysAxis]
+			};
+			csa Rotation_Fixed_Phi_CoordSysAxis "The Phi vector Q,E measuring rotation about the Fixed Coordinate System x axis " ;
+			csa Rotation_Fixed_Psi_CoordSysAxis "The Psi vector Q,E measuring rotation about the Fixed Coordinate System z axis. " ;
+			csa Rotation_Fixed_Theta_CoordSysAxis "The Theta vector Q,Emeasuring rotation about the Fixed Coordinate System y axis " ;
+		}
+
+		ldm Scalar {
+			coord Scalar_CoordSys "A scale for one dimensional scalar measurements" {
+				axis: "n/a"
+				angleEq: "n/a"
+				distanceEq: "|v2-v1| "
+				[Scalar_CoordSysAxis]
+			};
+			csa Scalar_CoordSysAxis "A scale for one dimensional scalar measurements " ;
+		}
+		ldm Angular {
+			coord Polar_CoordSys "Polar Coordinate System" {
+				axis: "S2 Right Handed Orthogonal"
+				angleEq: "Alpha = Theta2 - Theta1"
+				distanceEq: "d = sqrt[(r1^2 +r2^2)-(2*r1*r2*cos(Theta2-Theta1))] "
+				[Angular_Azimuth_CoordSysAxis Angular_Radial_CoordSysAxis]
+			};
+			coord Spherical_Phi_CoordSys "The independent Phi axis of the 3 dimensional (3D) Spherically symmetric coordinate system." {
+				axis: "S3 Right Handed Orthogonal (R, Azimuth, Inclination),"
+				angleEq: "Alpha = sqrt[(Theta1^2 + Theta2^2) -2(Theta1*Theta2) * cos(Phi1-Phi2)]"
+				distanceEq: "Multiple distance metrics are possible depending upon the topology "
+				[Angular_Inclination_CoordSysAxis]
+			};
+			coord Spherical_R_CoordSys "The independent R axis of the 3 dimensional (3D) Spherically symmetric coordinate system." {
+				axis: "S3 Right Handed Orthogonal (R, Azimuth, Inclination),"
+				angleEq: "Alpha = sqrt[(Theta1^2 + Theta2^2) -2(Theta1*Theta2) * cos(Phi1-Phi2)]"
+				distanceEq: "Multiple distance metrics are possible depending upon the topology "
+				[Angular_Radial_CoordSysAxis]
+			};
+			coord Spherical_Theta_CoordSys "The independent Theta axis of the 3 dimensional (3D) Spherically symmetric coordinate system." {
+				axis: "S3 Right Handed Orthogonal (R, Azimuth, Inclination),"
+				angleEq: "Alpha = sqrt[(Theta1^2 + Theta2^2) -2(Theta1*Theta2) * cos(Phi1-Phi2)]"
+				distanceEq: "Multiple distance metrics are possible depending upon the topology "
+				[Angular_Azimuth_CoordSysAxis]
+			};
+			coord Spherical_Surface_CoordSys "A spherically symmetric coordinate system for a surface" {
+				axis: "S3 Right Handed Orthogonal (R, Azimuth, Inclination),"
+				angleEq: "Alpha = sqrt[(Theta1^2 + Theta2^2) -2(Theta1*Theta2) * cos(Phi1-Phi2)]"
+				distanceEq: "Multiple distance metrics are possible depending upon the topology "
+				[Angular_Inclination_CoordSysAxis Angular_Azimuth_CoordSysAxis]
+			};
+			coord Spherical_CoordSys "A 3 dimensional (3D) Spherically symmetric coordinate system." {
+				axis: "S3 Right Handed Orthogonal (R, Azimuth, Inclination),"
+				angleEq: "Alpha = sqrt[(Theta1^2 + Theta2^2) -2(Theta1*Theta2) * cos(Phi1-Phi2)]"
+				distanceEq: "Multiple distance metrics are possible depending upon the topology "
+				[Angular_Inclination_CoordSysAxis Angular_Azimuth_CoordSysAxis Angular_Radial_CoordSysAxis]
+			};
+			csa Angular_Inclination_CoordSysAxis "The inclination (or polar) Axis is the set of angles between the zenith direction and the line segment OP. " ;
+			csa Angular_Azimuth_CoordSysAxis "The azimuth (or azimuthal) Axis is the set of signed angles measured from the azimuth reference direction to the orthogonal projection of any line segment OP on the reference plane. " ;
+			csa Angular_Radial_CoordSysAxis "The radius or radial Axis is the set of Euclidian Distance vectors from the origin O to any point P " ;
+		}
+		ldm Discrete {
+			coord Discrete_CoordSys "Coordinate system used to model sets of discrete states (e.g. Q,E enumerations)." {
+				axis: "n/a"
+				angleEq: "n/a"
+				distanceEq: "n/a "
+				[Discrete_CoordSysAxis]
+			};
+			csa Discrete_CoordSysAxis "The axis used to represent a set of discrete states (e.g. Q,E a set of enumerations) " ;
+		}
+	}
+	ldm LogicalValueTypes "The types available to represent the values of Measures" {
+		bool Boolean "A type that can represent only two values, often meaning True or False " ;
+		char Character "A type representing a single character in some written language " ;
+		int Integer "A whole number in the range -infinity to +infinity " ;
+		nat Natural "A whole number ranging from +1 to +infinity; also called &quot;counting numbers&quot; " ;
+		real+ NonNegativeReal "A real number ranging from 0 to +infinity " ;
+		real Real "A type to represent any numeric quantity along a continuous line. Real numbers include all rational and irrational numbers " ;
+		str String "A type used to represent an ordered set of characters in some written language " ;
+	}
+	ldm Units {
+		lunit CountsPerSecond "Number of events that occur per second " ;
+		lunit CountsPerMinute "Number of events that occur per minute. " ;
+		lunit KilogramsPerSecond "Rate of change in mass that occur per second " ;
+		lunit PoundsPerHour "Rate of change in mass that occurs per hour. " ;
+		ldm DataRateUnits {
+			lunit BitsPerSecond "Bits per second " ;
+		}
+		ldm ElectricChargedDensity {
+			lunit CoulombsPerMeter "Coulombs per meter " ;
+			lunit CoulombsPerMeterCubed "Coulombs per meter cubed. " ;
+			lunit CoulombsPerMeterSquared "Coulombs per meter squared " ;
+		}
+		ldm ElectricCurrentDensity {
+			lunit AmpPerSquareMeter "Unit of measure for representing one amp of electric current flowing through a material with a cross-sequential area of one square meter. " ;
+		}
+		ldm Percentage {
+			lunit Percentage "Unit of measure represented as a number or ratio expressed as a fraction of 100. " ;
+			lunit PercentPerSecond "Unit of measure for the rate of change of percent per unit second. " ;
+		}
+		ldm Acceleration {
+			ldm AngularAcceleration {
+				lunit DegreesPerSecondPerSecond "Unit of measure for the rate of change of an angular speed in which the base angular measure unit is degrees. " ;
+				lunit RadiansPerSecondPerSecond "Unit of measure for the rate of change of an angular velocity in which the base angular measure unit is radian. " ;
+			}
+			ldm LinearAcceleration {
+				lunit g "The nominal gravitational acceleration of an object in a vacuum near the surface of the Earth. It is defined by standard as 9.80665 m/s^2, which is exactly 35.30394 km/(h·s) (about 32.174 ft/s^2, or 21.937 mph/s). " ;
+				lunit FeetPerSecondPerSecond "Unit of measure for the rate of change of velocity in which the base distance measure traveled is feet. " ;
+				lunit KnotsPerSecond "Unit of measure for the rate of change of velocity in which the base velocity measure is knots. " ;
+				lunit MetersPerSecondPerSecond "Unit of measure for the rate of change of velocity in which the base distance measure traveled is meters. " ;
+			}
+		}
+		ldm AmountOfConcentration {
+			lunit MolesPerCubicMeter "Unit of measure for the number of atoms of a substance per unit volume. " ;
+		}
+		ldm AmountOfSubstance {
+			lunit Moles "Unit of measure to express amounts of a chemical substance, defined as the amount of any substance that contains as many elementary entities as there are atoms in 12 grams of pure carbon-12. " ;
+		}
+		ldm Angle {
+			lunit DegreesOfArc "Unit of measure for a plane angle representing 1/360 of a full rotation. Not an SI unit. " ;
+			lunit Gradians "Unit of measure for a pane angle representing 1/400 of a full rotation. Not an SI unit. " ;
+			lunit MinutesOfArc "Unit of measure for angular measurement equal to 1/60 of one degree, because one degree is 1/360 of a circle, one minute of arc is 1/21,600 of a circle. " ;
+			lunit Radians "Unit of measure for angular measurement equal to the length of a corresponding arc of a unit circle, one radian is just under 57.3 degrees. It is a SI derived unit. " ;
+			lunit SecondsOfArc "Unit of measure for angular measurement equal to 1/60 of one minute because one degree is 1/360 of a circle, one minute of arc is 1/21,600 of a circle and one second of arc is 1/1296000. " ;
+			lunit Turns "Unit of measure for angular measurement equal to 360 degrees or 2 pi radians. 1 revolution. " ;
+		}
+		ldm Area {
+			lunit Acres "Unit of measure for land area in US and Britain, defined as 1/640 of a square mile. " ;
+			lunit Barns "Unit of measure for area in nuclear physics expressing the cross sectional are of nuclei and nuclear reactions. Is approximately the cross sectional area of a uranium nucleus. " ;
+			lunit Hectares "Unit of measure in the meter system for land area defined as 10,000 square meters. " ;
+			lunit SquareFeet "Unit of measure for area equal to a square measuring one foot on each side, not an SI unit. " ;
+			lunit SquareKilometers "Unit of measure is a decimal multiple of the surface area measure square meters, and is a derived SI unit. " ;
+			lunit SquareMeters "Unit of measure for surface area equal to a square measuring one meter on each side, and is a derived SI unit. " ;
+			lunit SquareMiles "Unit of measure for area equal to the area of a square of on statute mile, not an SI unit. " ;
+		}
+		ldm Density {
+			lunit CoulombsPerCubicMeter "Unit of measure for representing one coulomb of electric charge per one cubic meter of volume. " ;
+			lunit CoulombsPerSquareMeter "Unit of measure for representing one coulomb of electric charge per one square meter of surface. " ;
+			lunit Density "Unit of measure represented as mass per unit volume. The SI unit of kilogram per cubic meter (kg/m3) and the cgs unit of gram per cubic centimeter (g/cm3) are probably the most commonly used units for density. 1,000 kg/m3 equals 1 g/cm3. " ;
+			lunit JoulesPerCubicMeter "Unit of measure for representing useful energy in joules released from on cubic meter of fuel volume during complete combustion. " ;
+			lunit KilogramsPerSquareMeter "Unit of measure for representing surface density in mass per unit area. " ;
+			lunit WattsPerSquareMeter "Unit of measure for representing the rate one watt of heat energy to flow through one square meter of area normal to the direction of heat flux. Derived SI Unit. " ;
+		}
+		ldm DerivedUnits {
+			ldm Ratios {
+				lunit AmpPerMeter "Unit of measure for representing a magnetic field strength. Derived SI unit " ;
+				lunit Bels "Unit of measure for representing the comparison of the power levels in electrical communication or sound. " ;
+				lunit CubicMetersPerKilogram "Unit of measure for representing specific volume of a substance as the ratio of the substance volume per mass, the reciprocal of density. " ;
+				lunit Decibels "Unit of measure for representing the intensity of sound. " ;
+				lunit DecibelHertz "Unit of measure for representing carrier-to-noise density ratio. " ;
+				lunit DecibelWatt "The decibel watt or dBW is a unit for the measurement of the strength of a signal expressed in decibels relative to one watt. " ;
+				lunit JoulesPerKelvin "Unit of measure for representing heat capacity or entropy. Derived SI unit " ;
+				lunit JoulesPerKilogram "Unit of measure for representing specific energy per unit mass. Derived SI Unit. " ;
+				lunit JoulesPerKilogramKelvin "Unit of measure for representing specific heat capacity, which is the heat capacity per unit mass of a material. Derived SI Unit " ;
+				lunit KilogramsPerCubicMeter "Unit of measure for material density. Derived SI Unit " ;
+				lunit LitersPerHour "Unit of measure for volume flow rate. " ;
+				lunit MillimetersPerHour "Unit of measure for representing the number of millimeters traveled in one hour used in speed and velocity metrics. " ;
+				lunit Nepers "Unit of measure for representing the ratio of two current, voltages, or analogous quantities. Not an SI unit. " ;
+				lunit NewtonsPerMeter "Unit of measure for representing surface tension in force per unit length. SI Derived unit " ;
+				lunit RevolutionsPerMinute "Unit of measure for representing the frequency of rotation. " ;
+				lunit WattsPerSteradian "Unit of measure for representing the radiant intensity of an object. " ;
+			}
+		}
+
+		ldm Length {
+			lunit Angstroms "Unit of measure for representing length equal to one hundred-millionth of a centimeter mainly to express wavelengths and interatomic distances. " ;
+			lunit AstronomicalUnits "Unit of measure for representing the mean distance between the Earth and the Sun, equal to 149.6 million kilometers. " ;
+			lunit Cables "Unit of measure for representing length as a nautical unit of measure equal to one tenth of a nautical mile or 185.2 meters. " ;
+			lunit Centimeters "Unit of measure for representing length equal to one hundredth of a meter. " ;
+			lunit Chains "Unit of measure for representing a geodetic measure used for land survey, equal to 66 feet. " ;
+			lunit DataMiles "Unit of measure for representing radar related subjects equal to 6,000 feet. " ;
+			lunit Fathoms "Unit of measure for representing depth of water equal to 6 feet. " ;
+			lunit Feet "Unit of measure for representing length as multiple units of the international foot, equal to 12 inches. " ;
+			lunit Inches "Unit of measure for representing length in the imperial and US customary systems of measurement. " ;
+			lunit Kilometers "Unit of measure for representing length equal to 1000 meters. " ;
+			lunit Links "Unit of measure for representing length equal to 7.92 survey inches formerly used in land surveying. " ;
+			lunit Meters "Unit of measure for representing length equal to the distance traveled in a vacuum by light in 1/299, 782, 458 second or to about 39.37 inches. An SI Unit. " ;
+			lunit MetricMiles "Unit of measure for representing length in international athletics of 1500 meters. " ;
+			lunit Millimeters "Unit of measure for representing length equal to one thousandth of a meter. " ;
+			lunit NauticalMiles "Unit of measure for representing length at sea or air travel equal to 1.15 miles " ;
+			lunit ReciprocalMeters "Unit of measure for representing a measure of the shape of a curved surface equal to the reciprocal of the radius of curvature of a surface in meters. " ;
+			lunit Rods "Unit of measure for representing length equal to 5 1/5 yards or 16 1/2 feet used in land surveying. " ;
+			lunit StatuteMiles "Unit of measure for representing length on land in English speaking countries equal to 5,280 feet. " ;
+			lunit Yards "Unit of measure for representing length in the US Customary and British Imperial Systems equal to 3 feet. " ;
+		}
+		ldm Mass {
+			lunit Dalton_UnifiedAtomicMassUnits "Unit of measure for representing mass on an atomic or molecular scale defined as one twelfth of the rest mass of an unbound atom of carbon-12 in its nuclear and electronic ground state. " ;
+			lunit ElectronMass "Unit of measure for representing electron rest mass is an atomic fundamental physical constant is defined as the mass of a stationary electron. " ;
+			lunit Grams "Unit of measure for representing a metric unit of mass equal to one thousandth of a kilogram. " ;
+			lunit KiloGrams "Unit of measure for representing the mass equal to the International Prototype of the Kilogram. " ;
+			lunit Milligrams "Unit of measure for representing a metric unit of mass equal to one thousandth of a gram. " ;
+			lunit Tonnes "Unit of measure for representing a metric unit of mass equal to 1,000 kilograms or 2, 240 pounds. A non-SI unit. " ;
+			ldm Avoirdupois {
+				lunit AvoirdupoisGrains "Unit of measure for representing a unit of 1/7000 of a pound from the avoirdupois system based on the 16 ounce pound or 7,000 grains. " ;
+				lunit Drams "Unit of measure for representing a unit of mass of 1/256 of a pound or 1/16 of an ounce. " ;
+				lunit Hundredweights "Unit of measure for representing a unit of mass equal to 100 pounds defined and used in the US Customary System. " ;
+				lunit LongHundredweights "Unit of measure for representing a unit of mass equal to 112 pounds defined and used in the Imperial System. " ;
+				lunit LongTons "Unit of measure for representing a unit of weight equal to 2240 pounds used in the Imperial System. " ;
+				lunit Ounces "Unit of measure for representing an avoirdupois unit of weight equal to 1/16 of an avoirdupois pound or 437.5 grains. " ;
+				lunit Pounds "Unit of measure for representing an avoirdupois unit of weight equal to 7000 grains. " ;
+				lunit Tons "Unit of measure for representing a unit of weight equal to 2000 pounds used in the US Customary System. " ;
+			}
+			ldm Troy {
+				lunit TroyGrains "Unit of measure for representing a unit of weight used for precious metals and gemstones equal to  1/60 dram or equal to the avoirdupois grain. " ;
+				lunit TroyOunces "Unit of measure for representing a unit of weight used for precious metals and gemstones equal to 480 grains. " ;
+				lunit TroyPounds "Unit of measure for representing a unit of weight used for precious metals and gemstones equal to 5,760 grains. " ;
+			}
+		}
+		ldm MassConcentration {
+		}
+		ldm MolarEnergy {
+			lunit JoulesPerMole "Unit of measure for representing the measure of the energy per amount of material. An SI derived unit. " ;
+		}
+
+		ldm SolidAngle {
+			lunit SquareDegrees "Unit of measure for representing the measure of a solid angle used to measure parts of a sphere. A non-SI unit. " ;
+			lunit Steradians "Unit of measure for representing squared radian is the measure of a solid angle used to measure parts of a sphere. An SI unit. " ;
+		}
+		ldm Speed {
+			lunit FeetPerMinute "Speed unit of feet per minute. " ;
+			lunit FeetPerSecond "Speed unit of feet per second. " ;
+			lunit DegreesPerSecond "Unit of measure for representing rotational speed, defined by the change in orientation of an object, in degrees every second. An SI Unit. " ;
+			lunit KilometersPerHour "Unit of measure for representing a measure of speed expressed as the number of kilometers travelled in one hour. " ;
+			lunit Knots "Unit of measure for representing a measure of speed equal to one nautical mile per hour. " ;
+			lunit Mach "Unit of measure for representing the speed of sound, the distance travelled per unit of time by a sound wave propagating through an elastic medium.  " ;
+			lunit MetersPerSecond "Unit of measure for representing speed and velocity. An SI derived unit. " ;
+			lunit MilesPerHour "Unit of measure for representing speed expressing the number of statute miles covered in one hour used in the Imperial and US Customary systems. " ;
+			lunit RadiansPerSecond "Unit of measure for representing rotational speed, defined by the change in orientation of an object, in radians every second. An SI Unit. " ;
+			lunit SpeedOfLight "Unit of measure for representing the speed of light in a vacuum, is a universal physical constant whose value is 299,792,458 meters per second. " ;
+		}
+		ldm Temperature {
+			lunit DegreesCelsius "Unit of measure for representing temperature where water freezes at 0 degrees and boils at 100 degrees. " ;
+			lunit DegreesFarenheit "Unit of measure for representing temperature where water freezes at 32 degrees and boils at 212 degrees (at standard atmospheric pressure). " ;
+			lunit DegreesKelvin "Unit of measure for representing temperature at which all thermal motion ceases in the classical description of thermodynamics. An SI unit. " ;
+		}
+		ldm Time {
+			lunit Days "Unit of time duration equal to 24 hours; approximately one rotation of the Earth " ;
+			lunit Hours "Unit of time duration equal to 60 minutes " ;
+			lunit Microseconds "Unit of time duration equal to one millionth of a second " ;
+			lunit Milliseconds "Unit of time duration equal to one thousandth of a second " ;
+			lunit Minutes "Unit of time duration equal to 60 seconds " ;
+			lunit Nanoseconds "Unit of time duration equal to one billionth of a second " ;
+			lunit Seconds "SI base unit of time. One second is defined to be the duration of 9192631770 periods of the radiation corresponding to the transition between the two hyperfine levels of the ground state of the cesium 133 atom " ;
+		}
+		ldm Volume {
+			lunit Liters "Unit of measure for representing 1,000 cubic centimeters.  0.946352946 liters is exacty equal to 1 (fluid, US) quarts. " ;
+			lunit CubicCentimeters "Unit of measure representing volume of a cube measuring 1 cm x 1 cm x 1 cm. A SI derived unit. " ;
+			lunit CubicFeet "Unit of measure representing volume of a cube measuring the same multiple of a foot unit in length on all sides. " ;
+			lunit CubicInches "Unit of measure representing volume of a cube measuring 1 in x 1 in x 1 in. " ;
+			lunit CubicMeters "Unit of measure representing volume of a cube measuring 1 m x 1 m x 1 m. A SI derived unit. " ;
+			lunit CubicMillimeters "Unit of measure representing volume of a cube measuring 1 mm x 1 mm x 1 mm. A SI derived unit. " ;
+			lunit CubicYards "Unit of measure representing volume of a cube measuring 1 yds x 1 yds x 1 yds. " ;
+		}
+
+	}
+
+} 
+
+}
+ 
+ 
+ 
+ 
+ 
+          
+  

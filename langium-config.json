@@ -1,0 +1,12 @@
+{
+    "projectName": "UniversalDataDefinitionLanguage",
+    "languages": [{
+        "id": "universal-data-definition-language",
+        "grammar": "src/language-server/universal-data-definition-language.langium",
+        "fileExtensions": [".uddl"],
+        "textMate": {
+            "out": "syntaxes/universal-data-definition-language.tmLanguage.json"
+        }
+    }],
+    "out": "src/language-server/generated"
+}

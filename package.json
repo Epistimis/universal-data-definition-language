@@ -1,0 +1,66 @@
+{
+    "name": "universal-data-definition-language",
+    "displayName": "Universal Data Definition Language",
+    "description": "Universal Data Definition Language from FACE (Future Airborne Capability Environment) Consortium)",
+    "publisher": "Epistimis LLC",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.56.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "universal-data-definition-language",
+            "aliases": ["Universal Data Definition Language", "universal-data-definition-language"],
+            "extensions": [".uddl"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "universal-data-definition-language",
+            "scopeName": "source.universal-data-definition-language",
+            "path": "./syntaxes/universal-data-definition-language.tmLanguage.json"
+        }]
+    },
+    "activationEvents": [
+        "onLanguage:universal-data-definition-language"
+    ],
+    "files": [
+        "bin",
+        "out",
+        "src"
+    ],
+    "bin": {
+        "universal-data-definition-language-cli": "./bin/cli"
+    },
+    "main": "./out/extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run esbuild-base -- --minify && npm run lint",
+        "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+        "build:worker": "esbuild --minify ./out/language-server/main.js --bundle --format=iife --outfile=./public/minilogo-server-worker.js",
+        "build": "tsc -b tsconfig.json",
+        "watch": "tsc -b tsconfig.json --watch",
+        "lint": "eslint src --ext ts",
+        "langium:generate": "langium generate",
+        "langium:watch": "langium generate --watch"
+    },
+    "dependencies": {
+        "chevrotain": "^9.1.0",
+        "chalk": "^4.1.2",
+        "commander": "^8.0.0",
+        "langium": "^0.5.0",
+        "vscode-languageclient": "^8.0.2",
+        "vscode-languageserver": "^8.0.2",
+        "vscode-uri": "^3.0.2"
+    },
+    "devDependencies": {
+        "@types/node": "^14.17.3",
+        "@types/vscode": "^1.56.0",
+        "@typescript-eslint/eslint-plugin": "^5.28.0",
+        "@typescript-eslint/parser": "^5.28.0",
+        "eslint": "^8.17.0",
+        "langium-cli": "^0.5.0",
+        "typescript": "^4.7.4"
+    }
+}

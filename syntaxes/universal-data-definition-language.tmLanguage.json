@@ -1,0 +1,57 @@
+{
+  "name": "universal-data-definition-language",
+  "scopeName": "source.universal-data-definition-language",
+  "fileTypes": [
+    ".uddl"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "name": "keyword.control.universal-data-definition-language",
+      "match": "\\b(aconv|basis|bool|ca|ccq|cdm|ce|char|conv|coord|cq|csa|dm|domain|double|enum|float|import|int|isUnion|lassoc|lcquery|ldm|ldouble|lentity|llong|long|lquery|lunit|maxis|mc|meas|msa|msc|msys|nat|observable|octet|pdm|pentity|real|refPt|seq|short|smsys|str|string|struct|ullong|ulong|ushort|wchar)\\b|\\b(angleEq:|axis:|basis:|char\\[|coord:|distanceEq:|eqn:|extRefStd:|fixed\\[|landmark:|loss:|maxis:|msaxis:|orient:|participants:|path:|prec:|real\\+|refPt:|refStd:|source:|spec:|src:|string\\[|sys:|vtu:)\\B|\\B(\\{c:|\\{p:)\\B"
+    },
+    {
+      "name": "string.quoted.double.universal-data-definition-language",
+      "begin": "\"",
+      "end": "\""
+    },
+    {
+      "name": "string.quoted.single.universal-data-definition-language",
+      "begin": "'",
+      "end": "'"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.universal-data-definition-language",
+          "begin": "/\\*",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.universal-data-definition-language"
+            }
+          },
+          "end": "\\*/",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.universal-data-definition-language"
+            }
+          }
+        },
+        {
+          "begin": "//",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.universal-data-definition-language"
+            }
+          },
+          "end": "(?=$)",
+          "name": "comment.line.universal-data-definition-language"
+        }
+      ]
+    }
+  }
+}
