@@ -1,4 +1,5 @@
 grammar UniversalDataDefinitionLanguage
+//import 'terminals'
 
 // Starter rule comes first
 
@@ -7,658 +8,504 @@ entry File:
     model+=DataModel+
     ;
 
-DataModel:
-	'dm' name=ID (description=STRING)? '{'
-		(cdm+=ConceptualDataModel)?
-		(ldm+=LogicalDataModel)?
-		(pdm+=PlatformDataModel)?
-	'}'
-	;
+terminal ID returns string:'^'? ('a' ..'z' | 'A' ..'Z' | '_' )('a' ..'z' | 'A' ..'Z' | '_' | '0' ..'9' )* ;
+terminal INT returns number:'0' ..'9' +;
+terminal STRING returns string:'"' ('\\' . |  !('\\' | '"' ))*'"'  | "'" ('\\' . |  !('\\' | "'" ))*"'"  ;
+hidden terminal ML_COMMENT returns string:'/*'  -> '*/'  ;
+hidden terminal SL_COMMENT returns string:'//'  !('\n' | '\r' )('\r'? '\n' )?  ;
+//hidden terminal WS returns string:(' ' | '\t' | '\r' | '\n' )+;
+terminal ANY_OTHER returns string:.;
 
-// A few generic rules
+terminal DEC returns string:'0' ..'9' +;
+//terminal INT returns number:('+' | '-' )?DEC  ;
+terminal FLOAT returns number:('+' | '-' )?DEC '.' DEC  ;
 
+
+DataModel infers DataModel:
+    'dm' name=ID  (description=STRING )? '{' (cdm+=ConceptualDataModel  | ldm+=LogicalDataModel  | pdm+=PlatformDataModel  )*'}'  
+;
 
 QN returns string:
-    ID ('.' ID)*;
- 
-Import:
-    'import' importedNamespace=QualifiedNameWithWildcard;
- 
+    ID ('.' ID )*  
+;
+
+Import infers Import:
+    'import' importedNamespace=QualifiedNameWithWildcard   
+;
+
 QualifiedNameWithWildcard returns string:
-    QN '.*'?;
- 
- // Metamodel concepts starts here   
-
-UddlElement:
-	DataModel |
-	ConceptualDataModel | LogicalDataModel | PlatformDataModel|
-	ConceptualElement|
-	LogicalElement |
-	PlatformElement
+    QN '.*'?  
 ;
 
-ConceptualDataModel:
-	'cdm'	name=ID (description=STRING)? '{'
-		(element+=ConceptualElement | cdm+=ConceptualDataModel)*
-	'}'
+UddlElement infers UddlElement:
+    DataModel | ConceptualDataModel | LogicalDataModel | PlatformDataModel | ConceptualElement | LogicalElement | PlatformElement | LogicalReferencePoint | LogicalEnumerationLabel | LogicalConstraint 
 ;
 
-LogicalDataModel:
-	'ldm'	name=ID (description=STRING)? '{'
-		(element+=LogicalElement | ldm+=LogicalDataModel)*	
-	'}'
+ConceptualDataModel infers ConceptualDataModel:
+    'cdm' name=ID  (description=STRING )? '{' (element+=ConceptualElement  | cdm+=ConceptualDataModel  )*'}'  
 ;
-
 
-PlatformDataModel:
-	'pdm'	name=ID (description=STRING)? '{'
-		(element+=PlatformElement | ldm+=PlatformDataModel)*	
-	'}'
+LogicalDataModel infers LogicalDataModel:
+    'ldm' name=ID  (description=STRING )? '{' (element+=LogicalElement  | ldm+=LogicalDataModel  )*'}'  
 ;
 
-
-ConceptualElement:
-	ConceptualDomain |
-	ConceptualBasisEntity |
-	ConceptualComposableElement |
-	ConceptualView	
+PlatformDataModel infers PlatformDataModel:
+    'pdm' name=ID  (description=STRING )? '{' (element+=PlatformElement  | pdm+=PlatformDataModel  )*'}'  
 ;
 
-ConceptualComposableElement:
-	ConceptualEntity |
-	ConceptualObservable
+ConceptualElement infers ConceptualElement:
+    ConceptualDomain | ConceptualBasisEntity | ConceptualComposableElement | ConceptualView 
 ;
-//NOTE: BasisElement has single inheritance - it has no independent functionality so it gets dropped
 
-
-ConceptualBasisEntity:
-	'basis' name=ID (description=STRING)? ';'
+ConceptualComposableElement infers ConceptualComposableElement:
+    ConceptualEntity | ConceptualObservable 
 ;
 
-ConceptualDomain:
-	'domain' name=ID (description=STRING)? ';'
+ConceptualBasisEntity infers ConceptualBasisEntity:
+    'basis' name=ID  (description=STRING )? ';'  
 ;
 
-ConceptualObservable:
-	'observable' name=ID (description=STRING)? ';'
+ConceptualDomain infers ConceptualDomain:
+    'domain' name=ID  (description=STRING )? ';'  
 ;
-
 
-ConceptualCharacteristic:
-	ConceptualComposition |
-	ConceptualParticipant
+ConceptualObservable infers ConceptualObservable:
+    'observable' name=ID  (description=STRING )? ';'  
 ;
 
-ConceptualEntity:
-	ConceptualAssociation |
-	'ce' name=ID (description=STRING)? ':' (specializes=[ConceptualEntity:QN])? '{'
-		(composition+=ConceptualComposition)?
-		('basis:' (basisEntity+=[ConceptualBasisEntity:QN]))?
-	'}' ';'
+ConceptualCharacteristic infers ConceptualCharacteristic:
+    ConceptualComposition | ConceptualParticipant 
 ;
 
-ConceptualComposition:
-	type=[ConceptualComposableElement:QN]  rolename=ID '[' (lowerBound=INT)? ':' (upperBound=INT)? ']' (description=STRING)? ':' (specializes=[ConceptualCharacteristic:QN])? ';'
+ConceptualEntity infers ConceptualEntity:
+    ConceptualAssociation | 'centity' name=ID  (description=STRING )? (':' specializes=[ConceptualEntity:QN ] )? '{' composition+=ConceptualComposition * ('basis:' '[' basisEntity+=[ConceptualBasisEntity:QN ]+ ']' )? '};'  
 ;
 
-ConceptualAssociation:
-		'ca' name=ID (description=STRING)? ':' (specializes=[ConceptualEntity:QN])? '{'
-		(composition+=ConceptualComposition)?
-		('basis:' (ConceptualBasisEntity+=[ConceptualBasisEntity:QN]))?
-		('participants:' participant+=ConceptualParticipant)?
-	'}' ';'
+ConceptualComposition infers ConceptualComposition:
+    ^type=[ConceptualComposableElement:QN ] rolename=ID  ('[' (lowerBound=INT )? ':' (upperBound=INT )? ']' )? (description=STRING )? (':' specializes=[ConceptualCharacteristic:QN ] )? ';'  
 ;
 
-ConceptualParticipant:
-	type=[ConceptualEntity:QN]  rolename=ID '[' (lowerBound=INT)? ':' (upperBound=INT)? ']' (description=STRING)? ':' (specializes=[ConceptualCharacteristic:QN])? 
-		'{'
-			'src:' '['sourceLowerBound=INT ':' sourceUpperBound=INT ']'
-			'path:' path=ConceptualPathNode 
-		'}'
-		';'
+ConceptualAssociation infers ConceptualAssociation:
+    'cassoc' name=ID  (description=STRING )? (':' specializes=[ConceptualEntity:QN ] )? '{' composition+=ConceptualComposition * ('basis:' '[' ConceptualBasisEntity+=[ConceptualBasisEntity:QN ]+ ']' )? ('participants:' '[' participant+=ConceptualParticipant + ']' )? '};'  
 ;
 
-ConceptualPathNode:
-	ConceptualParticipantPathNode |
-	ConceptualCharacteristicPathNode
+ConceptualParticipant infers ConceptualParticipant:
+    ^type=[ConceptualEntity:QN ] rolename=ID  ('[' (lowerBound=INT )? ':' (upperBound=INT )? ']' )? (description=STRING )? (':' specializes=[ConceptualCharacteristic:QN ] )? '{' 'src:' '[' sourceLowerBound=INT  ':' sourceUpperBound=INT  ']' ('path:' path=ConceptualPathNode  )? '}' ';'  
 ;
 
-// NOTE: There is something I did to set up the path resolution here that made things very succinct. I think it had to do
-// with the NameProvider?
-ConceptualParticipantPathNode:
-	'{p:' projectedParticipant=[ConceptualParticipant:QN] '}'
-	('->' node=ConceptualPathNode )?
+ConceptualPathNode infers ConceptualPathNode:
+    ConceptualParticipantPathNode | ConceptualCharacteristicPathNode 
 ;
 
-ConceptualCharacteristicPathNode:
-	'{c:' projectedCharacteristic=[ConceptualCharacteristic:QN] '}'
-	('->' node=ConceptualPathNode )?
+ConceptualParticipantPathNode infers ConceptualParticipantPathNode:
+    '/' projectedParticipant=[ConceptualParticipant:QN ] (node=ConceptualPathNode )?  
 ;
 
-ConceptualView:
-	ConceptualQuery |
-	ConceptualCompositeQuery
+ConceptualCharacteristicPathNode infers ConceptualCharacteristicPathNode:
+    '#' projectedCharacteristic=[ConceptualCharacteristic:QN ] (node=ConceptualPathNode )?  
 ;
 
-ConceptualQuery:
-	'cq' name=ID (description=STRING)? '{'
-		'spec:' specification=STRING
-	'}' ';'
+ConceptualView infers ConceptualView:
+    ConceptualQuery | ConceptualCompositeQuery 
 ;
 
-ConceptualCompositeQuery:
-	'ccq' name=ID (description=STRING)? '{'
-		isUnion?='isUnion'
-		composition+=ConceptualQueryComposition
-		(composition+=ConceptualQueryComposition)+
-	'}' ';'
+ConceptualQuery infers ConceptualQuery:
+    'cquery' name=ID  (description=STRING )? '{' 'spec:' specification=STRING  '};'  
 ;
 
-ConceptualQueryComposition:
-	type=[ConceptualView:QN] rolename=ID ';'
+ConceptualCompositeQuery infers ConceptualCompositeQuery:
+    'ccquery' name=ID  (description=STRING )? '{' isUnion?='isUnion'  composition+=ConceptualQueryComposition  (composition+=ConceptualQueryComposition )+ '};'  
 ;
 
-
-
-LogicalElement:
-	LogicalComposableElement |
-	LogicalConversion | // LogicalConversion has a single inheritance of LogicalAffineConversion - so that is promoted to here
-	LogicalUnit | //LogicalConvertibleElement | // LogicalConvertibleElement has a single inheritance of LogicalUnit - promote that to here
-	LogicalCoordinateSystem |
-	LogicalCoordinateSystemAxis |
-	LogicalMeasurementConversion |
-	LogicalMeasurementSystemConversion |
-	LogicalMeasurementAxis | // Also derived from AbstractMeasurement
-	LogicalAbstractMeasurementSystem| //LogicalMeasurementSystem |
-	LogicalMeasurementSystemAxis |
-	LogicalValueType | // Also derived from AbstractMeasurement
-	LogicalView 
+ConceptualQueryComposition infers ConceptualQueryComposition:
+    ^type=[ConceptualView:QN ] rolename=ID  ';'  
 ;
 
-// NOTE: LogicalConvertibleElement has LogicalUnit as a single inheritance. Since it has nothing else, promote LogicalUnit directly
-// to LogicalElement
-LogicalUnit:
-	'lunit' name=ID (description=STRING)? ';'
+LogicalElement infers LogicalElement:
+    LogicalComposableElement | LogicalConversion | LogicalUnit | LogicalCoordinateSystem | LogicalCoordinateSystemAxis | LogicalMeasurementConversion | LogicalMeasurementSystemConversion | LogicalMeasurementAxis | LogicalAbstractMeasurementSystem | LogicalMeasurementSystemAxis | LogicalValueType | LogicalView | LogicalLandmark | LogicalValueTypeUnit 
 ;
 
-// NOTE: LogicalConversion has LogicalAffineConversion as a single inheritance. Since it has nothing else, promote LogicalAffineConversion directly
-// to LogicalElement
-LogicalConversion:
-	'conv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation:QN] '->'  destination=[LogicalAssociation:QN] 
-		'}' ';' |
-	LogicalAffineConversion
+LogicalUnit infers LogicalUnit:
+    'lunit' name=ID  (description=STRING )? ';'  
 ;
 
-LogicalAffineConversion:
-	'aconv' name=ID  (description=STRING)? '{'
-		source=[LogicalAssociation:QN] '-(' conversionFactor=FLOAT ',' offset=FLOAT ')->'  destination=[LogicalAssociation:QN]
-	'}' ';' 
+LogicalConversion infers LogicalConversion:
+    'conv' name=ID  (description=STRING )? '{' source=[LogicalAssociation:QN ] '->' destination=[LogicalAssociation:QN ] '};'  | LogicalAffineConversion 
 ;
 
-LogicalValueType:
-	LogicalBoolean |
-	LogicalNumeric |
-	LogicalCharacter |
-	LogicalString |
-	LogicalEnumerated	
+LogicalAffineConversion infers LogicalAffineConversion:
+    'aconv' name=ID  (description=STRING )? '{' source=[LogicalAssociation:QN ] '-(' conversionFactor=FLOAT  ',' offset=FLOAT  ')->' destination=[LogicalAssociation:QN ] '};'  
 ;
 
-LogicalString: 					'str' 	name=ID (description=STRING)? ';' 	;
-LogicalCharacter: 				'char' 	name=ID (description=STRING)? ';'	;
-LogicalBoolean:					'bool' 	name=ID (description=STRING)? ';'	;
-
+LogicalValueType infers LogicalValueType:
+    LogicalBoolean | LogicalNumeric | LogicalCharacter | LogicalString | LogicalEnumeratedBase 
+;
 
-LogicalNumeric:
-	LogicalInteger |
-	LogicalNatural |
-	LogicalReal |
-	LogicalNonNegativeReal
+LogicalString infers LogicalString:
+    'str' name=ID  (description=STRING )? ';'  
 ;
 
-LogicalInteger:					'int' 	name=ID (description=STRING)? ';'	;
-LogicalNatural:					'nat' 	name=ID (description=STRING)? ';'	;
-LogicalReal:					'real' 	name=ID (description=STRING)? ';'	;
-LogicalNonNegativeReal:			'real+' name=ID (description=STRING)? ';'	;
-LogicalEnumerated:				
+LogicalCharacter infers LogicalCharacter:
+    'char' name=ID  (description=STRING )? ';'  
+;
 
-	'enum' 	name=ID (description=STRING)? '['
-		label+=LogicalEnumerationLabel (',' label+=LogicalEnumerationLabel)*
-		']'
-		';'	
-		;
+LogicalBoolean infers LogicalBoolean:
+    'bool' name=ID  (description=STRING )? ';'  
+;
 
-LogicalEnumerationLabel:		'(' name=ID (description=STRING)? ')' ;
+LogicalNumeric infers LogicalNumeric:
+    LogicalInteger | LogicalNatural | LogicalReal | LogicalNonNegativeReal 
+;
 
-LogicalCoordinateSystem:
-	'coord' name=ID (description=STRING)? '{'
-		('axis:' 		axisRelationshipDescription=STRING)?
-		('angleEq:' 	angleEquation=STRING)?
-		('distanceEq:' 	distanceEquation=STRING)?
-		'['axis+=[LogicalCoordinateSystemAxis:QN]+ ']'
-	'}' ';'
+LogicalInteger infers LogicalInteger:
+    'int' name=ID  (description=STRING )? ';'  
 ;
 
-LogicalCoordinateSystemAxis:
-	'csa' name=ID (description=STRING)? ';'
+LogicalNatural infers LogicalNatural:
+    'nat' name=ID  (description=STRING )? ';'  
 ;
 
+LogicalReal infers LogicalReal:
+    'real' name=ID  (description=STRING )? ';'  
+;
 
+LogicalNonNegativeReal infers LogicalNonNegativeReal:
+    'real+' name=ID  (description=STRING )? ';'  
+;
 
-LogicalAbstractMeasurementSystem:
-	LogicalStandardMeasurementSystem |
-	LogicalMeasurementSystem
+LogicalEnumerated infers LogicalEnumerated:
+    'enum' name=ID  (description=STRING )? ('stdRef:' standardReference=STRING  )? '[' label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? (label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? )* ']' ';'  
 ;
 
-LogicalStandardMeasurementSystem: 
-	'smsys' name=ID (description=STRING)? '{'
-		'refStd:' referenceStandard=STRING
-	'}' ';'
+LogicalEnumeratedBase infers LogicalEnumeratedBase:
+    LogicalEnumeratedSet | LogicalEnumerationLabel | LogicalEnumerated 
 ;
 
-LogicalLandmark:
-	'landmark' name=ID (description=STRING)? ';'
+LogicalEnumeratedSet infers LogicalEnumeratedSet:
+    '{' name=ID  (description=STRING )? '[' label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? (label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? )* ']' '}'  
 ;
 
-LogicalMeasurementSystem: 
-	'msys' name=ID (description=STRING)? '{'
-		('extRefStd:' externalStandardReference=STRING)?
-		('orient:' orientation=STRING)?
-		'maxis:' '[' measurementSystemAxis+=[LogicalMeasurementSystemAxis:QN] ']'
-		'coord:' coordinateSystem=[LogicalCoordinateSystem:QN]
-		('refPt:' '[' referencePoint+=LogicalReferencePoint ']')?
-		('![' constraint+=LogicalMeasurementConstraint ']')?
-	'}' ';'
+LogicalEnumerationLabel infers LogicalEnumerationLabel:
+    name=ID  | '(' name=ID  description=STRING  ')'  
 ;
 
-LogicalMeasurementSystemAxis:
-	'msa' name=ID (description=STRING)? '{'
-		'axis:' axis=[LogicalCoordinateSystemAxis:QN]
-		'vtu:' '[' defaultValueTypeUnit+=[LogicalValueTypeUnit:QN] ']'
-		('![' constraint+=LogicalMeasurementConstraint ']'	)?	
-	'}' ';'
+LogicalCoordinateSystem infers LogicalCoordinateSystem:
+    'coord' name=ID  (description=STRING )? '{' ('axis:' axisRelationshipDescription=STRING  )? ('angleEq:' angleEquation=STRING  )? ('distanceEq:' distanceEquation=STRING  )? '[' axis+=[LogicalCoordinateSystemAxis:QN ]+ ']' '};'  
 ;
 
-LogicalReferencePoint:
-	'refPt'	name=ID (description=STRING)? '{'
-		'landmark:' landmark=[LogicalLandmark:QN]
-		'[' referencePointPart+=LogicalReferencePointPart ']'
-	'}' ';'
+LogicalCoordinateSystemAxis infers LogicalCoordinateSystemAxis:
+    'csa' name=ID  (description=STRING )? ';'  
 ;
 
-LogicalReferencePointPart:
-	'(' (valueTypeUnit=[LogicalValueTypeUnit:QN])? value=STRING (axis=[LogicalMeasurementSystemAxis:QN])? ')'
+LogicalAbstractMeasurementSystem infers LogicalAbstractMeasurementSystem:
+    LogicalStandardMeasurementSystem | LogicalMeasurementSystem 
 ;
 
+LogicalStandardMeasurementSystem infers LogicalStandardMeasurementSystem:
+    'smsys' name=ID  (description=STRING )? '{' 'refStd:' referenceStandard=STRING  '};'  
+;
 
-LogicalValueTypeUnit:
-	'vtu' unit=[LogicalUnit:QN] valueType=[LogicalValueType:QN] name=ID (description=STRING)? '{'
-	'!' constraint=LogicalConstraint
-	'}' ';'
+LogicalLandmark infers LogicalLandmark:
+    'landmark' name=ID  (description=STRING )? ';'  
 ;
 
-LogicalConstraint:
-	LogicalStringConstraint |
-	LogicalRealRangeConstraint | //LogicalRealConstraint | //LogicalRealConstraint has a single inheritance of LogicalRealRangeConstraint - promote that to here
-	LogicalIntegerRangeConstraint | //LogicalIntegerConstraint | //LogicalIntegerConstraint has single inheritance of LogicalIntegerRangeConstraint
-	LogicalEnumerationConstraint
+LogicalMeasurementSystem infers LogicalMeasurementSystem:
+    'msys' name=ID  (description=STRING )? '{' 'maxis:' '[' measurementSystemAxis+=[LogicalMeasurementSystemAxis:QN ]+ ']' 'coord:' coordinateSystem=[LogicalCoordinateSystem:QN ] ('extRefStd:' externalStandardReference=STRING  )? ('orient:' orientation=STRING  )? ('refPt:' '[' referencePoint+=LogicalReferencePoint + ']' )? ('![' constraint+=LogicalMeasurementConstraint + ']' )? '};'  
 ;
 
-//LogicalIntegerConstraint:
-//	LogicalIntegerRangeConstraint
-//;
+LogicalMeasurementSystemAxis infers LogicalMeasurementSystemAxis:
+    'msa' name=ID  (description=STRING )? '{' 'axis:' axis=[LogicalCoordinateSystemAxis:QN ] 'vtu:' '[' defaultValueTypeUnit+=[LogicalValueTypeUnit:QN ]+ ']' ('![' constraint+=LogicalMeasurementConstraint + ']' )? '};'  
+;
 
-LogicalIntegerRangeConstraint:
-	'irc'  name=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)?  ';'
+LogicalReferencePoint infers LogicalReferencePoint:
+    '(' name=ID  (description=STRING )? 'landmark:' landmark=[LogicalLandmark:QN ] '[' referencePointPart+=LogicalReferencePointPart + ']' ')'  
 ;
 
-//LogicalRealConstraint:
-//	LogicalRealRangeConstraint
-//;
+LogicalReferencePointPart infers LogicalReferencePointPart:
+    '(' (axis=[LogicalMeasurementSystemAxis:QN ])? value=STRING  (valueTypeUnit=[LogicalValueTypeUnit:QN ])? ')'  
+;
 
-// TODO: There is a way to default this to handle the include exclude bounds - is this it?
-LogicalRealRangeConstraint:
-	'rrc' name=ID ( '(' | lowerBoundInclusive?='[') lowerBound=FLOAT ':' upperBound=FLOAT (')'| upperBoundInclusive?=']') (description=STRING)?  ';'
+LogicalValueTypeUnit infers LogicalValueTypeUnit:
+    'vtu' valueType=[LogicalValueType:QN ] unit=[LogicalUnit:QN ] name=ID  (description=STRING )? ('{' '!' constraint=LogicalConstraint  '}' )? ';'  
 ;
 
-LogicalStringConstraint: 
-	LogicalRegularExpressionConstraint |
-	LogicalFixedLengthStringConstraint
+LogicalConstraint infers LogicalConstraint:
+    LogicalStringConstraint | LogicalRealRangeConstraint | LogicalIntegerRangeConstraint | LogicalEnumerationConstraint 
 ;
 
-LogicalRegularExpressionConstraint:
-	'rec' name=ID '[' expression=STRING ']'(description=STRING)? ';'
+LogicalIntegerRangeConstraint infers LogicalIntegerRangeConstraint:
+    'irc' name=ID  '[' lowerBound=INT  ':' upperBound=INT  ']' (description=STRING )? ';'  
 ;
 
-LogicalFixedLengthStringConstraint:
-	'flsc' name=ID '[' length=INT ']' (description=STRING)? ';'	
+LogicalRealRangeConstraint infers LogicalRealRangeConstraint:
+    'rrc' name=ID  ('(' | lowerBoundInclusive?='['  )lowerBound=FLOAT  ':' upperBound=FLOAT  (')' | upperBoundInclusive?=']'  )(description=STRING )? ';'  
 ;
 
-// NOTE: While the spec technically allows zero labels, it makes no sense to have a constraint that doesn't 
-// actually constrain anything. It might be in dynamic cases that this list could end up being empty - but 
-// for now we assume it has to have at least 1 value
-LogicalEnumerationConstraint :
-	 'ec' '[' (allowedValue+=[LogicalEnumerationLabel:QN])? ']'
+LogicalStringConstraint infers LogicalStringConstraint:
+    LogicalRegularExpressionConstraint | LogicalFixedLengthStringConstraint 
 ;
 
-LogicalMeasurementConstraint:
-	'mc'  name=ID '[' constraintText=STRING ']' (description=STRING)? ';'
+LogicalRegularExpressionConstraint infers LogicalRegularExpressionConstraint:
+    'rec' name=ID  '[' expression=STRING  ']' (description=STRING )? ';'  
 ;
 
+LogicalFixedLengthStringConstraint infers LogicalFixedLengthStringConstraint:
+    'flsc' name=ID  '[' length=INT  ']' (description=STRING )? ';'  
+;
 
-LogicalMeasurementSystemConversion:
-	'msc' name=ID  (description=STRING)? '{'
-		source=[LogicalMeasurementSystem:QN] '->' destination=[LogicalMeasurementSystem:QN]
-		'eqn:' '[' equation+=STRING (',' equation+=STRING)? ']'
-		'loss:' conversionLossDescription=STRING
-	'}' ';'
+LogicalEnumerationConstraint infers LogicalEnumerationConstraint:
+    { infer LogicalEnumerationConstraint} 'ec' name=ID  (description=STRING )? ('[' (allowedValue+=[LogicalEnumerationLabel:QN ])+ ']' )?  
 ;
 
+LogicalMeasurementConstraint infers LogicalMeasurementConstraint:
+    constraintText=STRING  
+;
 
-// TODO: XText doesn't do multiple inheritance. Address this via a ScopeProvider
-// See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#scoping
-// Use a FilteringScope
-//LogicalAbstractMeasurement:
-//	LogicalMeasurement |  // Use LogicalComposableElement
-//	LogicalMeasurementAxis | // Use LogicalElement
-//	LogicalValueTypeUnit  //Use LogicalElement
-//;
+LogicalMeasurementSystemConversion infers LogicalMeasurementSystemConversion:
+    'msc' name=ID  (description=STRING )? '{' source=[LogicalMeasurementSystem:QN ] '->' destination=[LogicalMeasurementSystem:QN ] 'eqn:' '[' equation+=STRING  (',' equation+=STRING  )? ']' 'loss:' conversionLossDescription=STRING  '};'  
+;
 
+LogicalMeasurement infers LogicalMeasurement:
+    'meas' name=ID  (description=STRING )? '->' realizes=[ConceptualObservable:QN ] '{' attribute+=LogicalMeasurementAttribute * ('axis:' '[' measurementAxis+=[LogicalMeasurementAxis:QN ]+ ']' )? 'sys:' measurementSystem=[LogicalAbstractMeasurementSystem:QN ] ('![' constraint+=LogicalMeasurementConstraint  ']' )? '};'  
+;
 
-LogicalMeasurement:
-	'meas' name=ID  (description=STRING)? '->' realizes=[ConceptualObservable:QN] '{'
-		attribute+=LogicalMeasurementAttribute
-		('axis:' '[' measurementAxis+=[LogicalMeasurementAxis:QN] ']')?
-		'sys:' measurementSystem=[LogicalAbstractMeasurementSystem:QN]
-		('![' constraint+=LogicalMeasurementConstraint ']')?	
+LogicalMeasurementAxis infers LogicalMeasurementAxis:
+    'maxis' name=ID  (description=STRING )? ('->' realizes=[ConceptualObservable:QN ] )? '{' ('vtu:' '[' valueTypeUnit+=[LogicalValueTypeUnit:QN ]+ ']' )? 'msaxis:' measurementSystemAxis=[LogicalMeasurementSystemAxis:QN ] ('![' constraint+=LogicalMeasurementConstraint + ']' )? '};'  
 ;
 
-LogicalMeasurementAxis:
-	'maxis' name=ID  (description=STRING)? ('->' realizes=[ConceptualObservable:QN])? '{'
-		('vtu:' '[' valueTypeUnit+=[LogicalValueTypeUnit:QN] ']')?
-		'msaxis:' measurementSystemAxis=[LogicalMeasurementSystemAxis:QN]
-	'}' ';'
+LogicalMeasurementAttribute infers LogicalMeasurementAttribute:
+    ^type=[LogicalMeasurement:QN ] rolename=ID   
 ;
 
-LogicalMeasurementAttribute:
-	type=[LogicalMeasurement:QN] rolename=ID
+LogicalMeasurementConversion infers LogicalMeasurementConversion:
+    'mc' name=ID  (description=STRING )? '{' source=[LogicalMeasurementSystem:QN ] '->' destination=[LogicalMeasurementSystem:QN ] 'eqn:' '[' equation+=STRING  (',' equation+=STRING  )? ']' 'loss:' conversionLossDescription=STRING  '};'  
 ;
 
-LogicalMeasurementConversion:
-	'mc' name=ID  (description=STRING)? '{'
-		source=[LogicalMeasurementSystem:QN] '->' destination=[LogicalMeasurementSystem:QN]
-		'eqn:' '[' equation+=STRING (',' equation+=STRING)? ']'
-		'loss:' conversionLossDescription=STRING
-	'}' ';'
+LogicalComposableElement infers LogicalComposableElement:
+    LogicalEntity | LogicalMeasurement 
 ;
 
-LogicalComposableElement:
-	LogicalEntity |
-	LogicalMeasurement  // Also derived from AbstractMeasurement
+LogicalCharacteristic infers LogicalCharacteristic:
+    LogicalComposition | LogicalParticipant 
 ;
 
+LogicalEntity infers LogicalEntity:
+    'lentity' name=ID  (description=STRING )? (':' specializes=[LogicalEntity:QN ] )? '->' realizes=[ConceptualEntity:QN ] '{' composition+=LogicalComposition * '};'  | LogicalAssociation 
+;
 
-LogicalCharacteristic:
-	LogicalComposition |
-	LogicalParticipant
+LogicalComposition infers LogicalComposition:
+    ^type=[LogicalComposableElement:QN ] rolename=ID  ('[' lowerBound=INT  ':' upperBound=INT  ']' )? (description=STRING )? (':' specializes=[LogicalCharacteristic:QN ] )? '->' realizes=[ConceptualComposition:QN ] ';'  
 ;
 
-LogicalEntity:
-	'lentity' name=ID  (description=STRING)? (':' specializes=[LogicalEntity:QN])? '->' realizes=[ConceptualEntity:QN] '{'
-		(composition+=LogicalComposition)?
-	'}' ';'
-	| LogicalAssociation
+LogicalAssociation infers LogicalAssociation:
+    'lassoc' name=ID  (description=STRING )? (':' specializes=[LogicalEntity:QN ] )? '->' realizes=[ConceptualEntity:QN ] '{' composition+=LogicalComposition * ('participants:' '[' participant+=LogicalParticipant + ']' )? '};'  
 ;
 
-LogicalComposition:
-	type=[LogicalComposableElement:QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[LogicalCharacteristic:QN])?  '->' realizes=[ConceptualComposition:QN]
-	
+LogicalParticipant infers LogicalParticipant:
+    ^type=[LogicalAssociation:QN ] rolename=ID  ('[' lowerBound=INT  ':' upperBound=INT  ']' )? (description=STRING )? (':' specializes=[LogicalCharacteristic:QN ] )? '->' realizes=[ConceptualParticipant:QN ] '{' 'source:' '[' sourceLowerBound=INT  ':' sourceUpperBound=INT  ']' ('path:' path=LogicalPathNode  )? '};'  
 ;
 
-LogicalAssociation:
-	'lassoc' name=ID  (description=STRING)? (':' specializes=[LogicalEntity:QN])? '->' realizes=[ConceptualEntity:QN] '{'
-		(composition+=LogicalComposition)?
-		// While technically this is optional, it makes no sense to have an Association with less than 2 participants. However,
-		// Those participants can be named anywhere in the inheritance/ specializes hierarchy - not just locally
-		('participants:' '[' participant+=LogicalParticipant ']')?
-	'}' ';'	
+LogicalPathNode infers LogicalPathNode:
+    LogicalParticipantPathNode | LogicalCharacteristicPathNode 
 ;
 
-LogicalParticipant:
-	type=[LogicalAssociation:QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[LogicalCharacteristic:QN])?  '->' realizes=[ConceptualParticipant:QN] '{'
-		'source:' '[' sourceLowerBound=INT ':' sourceUpperBound=INT ']'
-		('path:' path=LogicalPathNode )?
-	'}' ';'
+LogicalParticipantPathNode infers LogicalParticipantPathNode:
+    '/' projectedParticipant=[LogicalParticipant:QN ] (node=LogicalPathNode )  
 ;
 
-LogicalPathNode:
-	LogicalParticipantPathNode |
-	LogicalCharacteristicPathNode
+LogicalCharacteristicPathNode infers LogicalCharacteristicPathNode:
+    '#' projectedCharacteristic=[LogicalCharacteristic:QN ] (node=LogicalPathNode )  
 ;
 
-LogicalParticipantPathNode:
-	'/' projectedParticipant=[LogicalParticipant:QN]  ( node=LogicalPathNode)
+LogicalView infers LogicalView:
+    LogicalQuery | LogicalCompositeQuery 
 ;
 
-LogicalCharacteristicPathNode:
-	':' projectedCharacteristic=[LogicalCharacteristic:QN]  ( node=LogicalPathNode)
-	
+LogicalQuery infers LogicalQuery:
+    'lquery' name=ID  (description=STRING )? ('->' realizes=[ConceptualQuery:QN ] )? '{' 'spec:' specification=STRING  '};'  
 ;
 
-LogicalView:
-	LogicalQuery |
-	LogicalCompositeQuery
+LogicalCompositeQuery infers LogicalCompositeQuery:
+    'lcquery' name=ID  (description=STRING )? ('->' realizes=[ConceptualCompositeQuery:QN ] )? '{' isUnion?='isUnion'  composition+=LogicalQueryComposition  '};'  
 ;
 
-LogicalQuery:
-	'lquery' name=ID  (description=STRING)? ('->' realizes=[ConceptualQuery:QN])? '{'
-		'spec:' specification=STRING
-		'}' ';'
+LogicalQueryComposition infers LogicalQueryComposition:
+    ^type=[LogicalView:QN ] rolename=ID  ('->' realizes=[ConceptualQueryComposition:QN ] )?  
 ;
 
-LogicalCompositeQuery:
-	'lcquery' name=ID  (description=STRING)? ('->' realizes=[ConceptualCompositeQuery:QN])? '{'
-		isUnion?='isUnion'
-		composition+=LogicalQueryComposition
-		'}' ';'
+PlatformElement infers PlatformElement:
+    PlatformComposableElement | PlatformView 
 ;
 
-LogicalQueryComposition:
-	type=[LogicalView:QN] rolename=ID ( '->' realizes=[ConceptualQueryComposition:QN])?
+PlatformComposableElement infers PlatformComposableElement:
+    PlatformEntity | PlatformDataType 
 ;
 
-/* * * * * * * Platform Level Rules * * * * * *  */
+PlatformDataType infers PlatformDataType:
+    PlatformPrimitive | PlatformStruct 
+;
 
-PlatformElement:
-	PlatformComposableElement |
-	PlatformView
+PlatformPrimitive infers PlatformPrimitive:
+    PlatformSequence | PlatformBoolean | PlatformCharType | PlatformNumber | PlatformOctet | PlatformEnumeration | PlatformStringType | PlatformArray 
 ;
 
-PlatformComposableElement:
-	PlatformEntity |
-	PlatformDataType
+PlatformBoolean infers PlatformBoolean:
+    'bool' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
-PlatformDataType:
-	PlatformPrimitive |
-	PlatformStruct
+
+PlatformOctet infers PlatformOctet:
+    'octet' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-	
-PlatformPrimitive:
-	PlatformSequence |
-	PlatformBoolean |
-	PlatformCharType |
-	PlatformNumber |
-	PlatformOctet |
-	PlatformEnumeration |
-	PlatformStringType
+PlatformCharType infers PlatformCharType:
+    PlatformChar | PlatformWChar 
 ;
 
-PlatformBoolean:			'bool'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformOctet:				'octet'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformChar infers PlatformChar:
+    'char' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
+;
 
-PlatformCharType:
-	PlatformChar |
-	PlatformWChar // NOTE: WChar was removed from the spec. Not clear is we want it
+PlatformWChar infers PlatformWChar:
+    'wchar' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformChar:				'char'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformWChar:				'wchar'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformStringType infers PlatformStringType:
+    PlatformString | PlatformBoundedString | PlatformCharArray 
+;
 
-PlatformStringType:
-	PlatformString |
-	PlatformBoundedString |
-	PlatformCharArray
+PlatformString infers PlatformString:
+    'string' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformString:				'string'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformBoundedString:		'string[' maxLength=INT ']'  	name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformCharArray:			'char['   length=INT ']'  		name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformBoundedString infers PlatformBoundedString:
+    'string[' maxLength=INT  ']' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
+;
 
-PlatformEnumeration:		'enum'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-	
-PlatformNumber:
-	PlatformReal |
-	PlatformInteger
+PlatformCharArray infers PlatformCharArray:
+    'char[' length=INT  ']' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformInteger:
-	PlatformLong |
-	PlatformShort |
-	PlatformUnsignedInteger |
-	PlatformLongLong
+PlatformEnumeration infers PlatformEnumeration:
+    'enum' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformShort:				'short'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformLong:				'long'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformLongLong:			'llong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformNumber infers PlatformNumber:
+    PlatformReal | PlatformInteger 
+;
 
+PlatformInteger infers PlatformInteger:
+    PlatformLong | PlatformShort | PlatformUnsignedInteger | PlatformLongLong 
+;
 
-PlatformReal:
-	PlatformFixed |
-	PlatformFloat |
-	PlatformDouble |
-	PlatformLongDouble
+PlatformShort infers PlatformShort:
+    'short' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformDouble:				'double'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformLongDouble:			'ldouble'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformFloat:				'float'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformFixed:				'fixed[' digits=INT '.' scale=INT ']'
-															name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';'
+PlatformLong infers PlatformLong:
+    'long' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformUnsignedInteger:
-	PlatformUShort |
-	PlatformULong |
-	PlatformULongLong
+PlatformLongLong infers PlatformLongLong:
+    'llong' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformUShort:				'ushort'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformULong:				'ulong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformULongLong:			'ullong'  						name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformReal infers PlatformReal:
+    PlatformFixed | PlatformFloat | PlatformDouble | PlatformLongDouble 
+;
 
+PlatformDouble infers PlatformDouble:
+    'double' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
+;
 
-PlatformSequence:			'seq' ('[' maxSize=INT ']')?  	name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
-PlatformArray:				'arr' ('[' size=INT ']')?  		name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] ';' ;
+PlatformLongDouble infers PlatformLongDouble:
+    'ldouble' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
+;
 
-PlatformStruct:
-	'struct' name=ID  (description=STRING)? '->' realizes=[/*LogicalAbstractMeasurement*/LogicalElement:QN] '{'
-		member+=PlatformStructMember
-		member+=PlatformStructMember
-		(member+=PlatformStructMember)?
-	'}'
+PlatformFloat infers PlatformFloat:
+    'float' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformStructMember:
-	type=[PlatformDataType:QN] rolename=ID '(' precision=FLOAT ')' ('->' realizes=[LogicalMeasurementAttribute:QN] ';')?
+PlatformFixed infers PlatformFixed:
+    'fixed[' digits=INT  '.' scale=INT  ']' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
+PlatformUnsignedInteger infers PlatformUnsignedInteger:
+    PlatformUShort | PlatformULong | PlatformULongLong 
+;
 
-PlatformCharacteristic:
-	PlatformComposition |
-	PlatformParticipant
-;	
+PlatformUShort infers PlatformUShort:
+    'ushort' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
+;
 
-PlatformEntity:
-	'pentity' name=ID  (description=STRING)? (':' specializes=[PlatformEntity:QN])? '->' realizes=[LogicalEntity:QN] '{'
-		(composition+=PlatformComposition)?
-	'}' ';'
-	| PlatformAssociation
+PlatformULong infers PlatformULong:
+    'ulong' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformComposition:
-	type=[PlatformComposableElement:QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[PlatformCharacteristic:QN])?  '->' realizes=[LogicalComposition:QN]
-		'{'
-			'prec:' precision=FLOAT
-		'}'';'	
+PlatformULongLong infers PlatformULongLong:
+    'ullong' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformAssociation:
-	'lassoc' name=ID  (description=STRING)? (':' specializes=[PlatformEntity:QN])? '->' realizes=[LogicalEntity:QN] '{'
-		(composition+=PlatformComposition)?
-		// While technically this is optional, it makes no sense to have an Association with less than 2 participants. However,
-		// Those participants can be named anywhere in the inheritance/ specializes hierarchy - not just locally
-		('participants:' '[' participant+=PlatformParticipant ']')?
-	'}' ';'	
+PlatformSequence infers PlatformSequence:
+    'seq' ('[' maxSize=INT  ']' )? name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformParticipant:
-	type=[PlatformAssociation:QN]  rolename=ID '[' lowerBound=INT ':' upperBound=INT ']' (description=STRING)? (':' specializes=[PlatformCharacteristic:QN])?  '->' realizes=[LogicalParticipant:QN] '{'
-		'source:' '[' sourceLowerBound=INT ':' sourceUpperBound=INT ']'
-		('path:' path=PlatformPathNode )?
-	'}' ';'
+PlatformArray infers PlatformArray:
+    'arr' ('[' size=INT  ']' )? name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] ';'  
 ;
 
-PlatformPathNode:
-	PlatformParticipantPathNode |
-	PlatformCharacteristicPathNode
+PlatformStruct infers PlatformStruct:
+    'struct' name=ID  (description=STRING )? '->' realizes=[LogicalElement:QN ] '{' member+=PlatformStructMember  member+=PlatformStructMember  (member+=PlatformStructMember )? '}'  
 ;
 
-PlatformParticipantPathNode:
-	'/' projectedParticipant=[PlatformParticipant:QN]  ( node=PlatformPathNode)
+PlatformStructMember infers PlatformStructMember:
+    ^type=[PlatformDataType:QN ] rolename=ID  '(' precision=FLOAT  ')' ('->' realizes=[LogicalMeasurementAttribute:QN ] ';' )?  
 ;
 
-PlatformCharacteristicPathNode:
-	':' projectedCharacteristic=[PlatformCharacteristic:QN]  ( node=PlatformPathNode)
-	
+PlatformCharacteristic infers PlatformCharacteristic:
+    PlatformComposition | PlatformParticipant 
 ;
 
-PlatformView:
-	PlatformQuery |
-	PlatformCompositeQuery
+PlatformEntity infers PlatformEntity:
+    'pentity' name=ID  (description=STRING )? (':' specializes=[PlatformEntity:QN ] )? '->' realizes=[LogicalEntity:QN ] '{' composition+=PlatformComposition * '};'  | PlatformAssociation 
 ;
 
-PlatformQuery:
-	'lquery' name=ID  (description=STRING)? ('->' realizes=[LogicalQuery:QN])? '{'
-		'spec:' specification=STRING
-		'}' ';'
+PlatformComposition infers PlatformComposition:
+    ^type=[PlatformComposableElement:QN ] rolename=ID  ('[' lowerBound=INT  ':' upperBound=INT  ']' )? (description=STRING )? (':' specializes=[PlatformCharacteristic:QN ] )? '->' realizes=[LogicalComposition:QN ] ('{' 'prec:' precision=FLOAT  '}' )? ';'  
 ;
 
-PlatformCompositeQuery:
-	'lcquery' name=ID  (description=STRING)? ('->' realizes=[LogicalQuery:QN])? '{'
-		isUnion?='isUnion'
-		composition+=PlatformQueryComposition
-		'}' ';'
+PlatformAssociation infers PlatformAssociation:
+    'passoc' name=ID  (description=STRING )? (':' specializes=[PlatformEntity:QN ] )? '->' realizes=[LogicalEntity:QN ] '{' composition+=PlatformComposition * ('participants:' '[' participant+=PlatformParticipant + ']' )? '};'  
 ;
 
-PlatformQueryComposition:
-	type=[PlatformView:QN] rolename=ID ( '->' realizes=[LogicalQueryComposition:QN])?
+PlatformParticipant infers PlatformParticipant:
+    ^type=[PlatformAssociation:QN ] rolename=ID  ('[' lowerBound=INT  ':' upperBound=INT  ']' )? (description=STRING )? (':' specializes=[PlatformCharacteristic:QN ] )? '->' realizes=[LogicalParticipant:QN ] '{' 'source:' '[' sourceLowerBound=INT  ':' sourceUpperBound=INT  ']' ('path:' path=PlatformPathNode  )? '};'  
 ;
 
+PlatformPathNode infers PlatformPathNode:
+    PlatformParticipantPathNode | PlatformCharacteristicPathNode 
+;
 
+PlatformParticipantPathNode infers PlatformParticipantPathNode:
+    '/' projectedParticipant=[PlatformParticipant:QN ] (node=PlatformPathNode )  
+;
 
+PlatformCharacteristicPathNode infers PlatformCharacteristicPathNode:
+    '#' projectedCharacteristic=[PlatformCharacteristic:QN ] (node=PlatformPathNode )  
+;
 
-terminal ID: /[_a-zA-Z][\w_]*/;
+PlatformView infers PlatformView:
+    PlatformQuery | PlatformCompositeQuery 
+;
 
-//terminal LONG returns number INT ("L"|"l");
-terminal FLOAT returns number : /[0-9]+/ '.' /[0-9]+/;
-//terminal DOUBLE returns number : INT '.' INT ('D'|'d');
+PlatformQuery infers PlatformQuery:
+    'pquery' name=ID  (description=STRING )? ('->' realizes=[LogicalQuery:QN ] )? '{' 'spec:' specification=STRING  '};'  
+;
 
-terminal INT returns number: /[0-9]+/;
-terminal STRING: /"[^"]*"|'[^']*'/;
+PlatformCompositeQuery infers PlatformCompositeQuery:
+    'pcquery' name=ID  (description=STRING )? ('->' realizes=[LogicalQuery:QN ] )? '{' isUnion?='isUnion'  composition+=PlatformQueryComposition  '};'  
+;
 
-hidden terminal WS: /\s+/;
-hidden terminal ML_COMMENT: /\/\*[\s\S]*?\*\//;
-hidden terminal SL_COMMENT: /\/\/[^\n\r]*/;
+PlatformQueryComposition infers PlatformQueryComposition:
+    ^type=[PlatformView:QN ] rolename=ID  ('->' realizes=[LogicalQueryComposition:QN ] )?  
+;
 
