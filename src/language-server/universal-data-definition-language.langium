@@ -8,17 +8,6 @@ entry File:
     model+=DataModel+
     ;
 
-terminal ID returns string:'^'? ('a' ..'z' | 'A' ..'Z' | '_' )('a' ..'z' | 'A' ..'Z' | '_' | '0' ..'9' )* ;
-terminal INT returns number:'0' ..'9' +;
-terminal STRING returns string:'"' ('\\' . |  !('\\' | '"' ))*'"'  | "'" ('\\' . |  !('\\' | "'" ))*"'"  ;
-hidden terminal ML_COMMENT returns string:'/*'  -> '*/'  ;
-hidden terminal SL_COMMENT returns string:'//'  !('\n' | '\r' )('\r'? '\n' )?  ;
-//hidden terminal WS returns string:(' ' | '\t' | '\r' | '\n' )+;
-terminal ANY_OTHER returns string:.;
-
-terminal DEC returns string:'0' ..'9' +;
-//terminal INT returns number:('+' | '-' )?DEC  ;
-terminal FLOAT returns number:('+' | '-' )?DEC '.' DEC  ;
 
 
 DataModel infers DataModel:
@@ -508,4 +497,16 @@ PlatformCompositeQuery infers PlatformCompositeQuery:
 PlatformQueryComposition infers PlatformQueryComposition:
     ^type=[PlatformView:QN ] rolename=ID  ('->' realizes=[LogicalQueryComposition:QN ] )?  
 ;
+
+terminal ID returns string:'^'? ('a' ..'z' | 'A' ..'Z' | '_' )('a' ..'z' | 'A' ..'Z' | '_' | '0' ..'9' )* ;
+terminal STRING returns string:'"' ('\\' . |  !('\\' | '"' ))*'"'  | "'" ('\\' . |  !('\\' | "'" ))*"'"  ;
+terminal INT returns number:'0' ..'9' +;
+terminal DEC returns string:'0' ..'9' +;
+//terminal INT returns number:('+' | '-' )?DEC  ;
+terminal FLOAT returns number:('+' | '-' )?DEC '.' DEC  ;
+terminal ANY_OTHER returns string:.;
+ 
+hidden terminal ML_COMMENT returns string:'/*'  -> '*/'  ;
+hidden terminal SL_COMMENT returns string:'//'  !('\n' | '\r' )('\r'? '\n' )?  ;
+hidden terminal WS returns string:(' ' | '\t' | '\r' | '\n' )+;
 

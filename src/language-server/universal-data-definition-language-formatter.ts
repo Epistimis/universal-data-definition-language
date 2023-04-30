@@ -1,7 +1,8 @@
 import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices } from 'langium';
 import * as ast from './generated/ast';
+import { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
 
-export class CustomFormatter extends AbstractFormatter {
+export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter {
 
     protected formatContainer(node: AstNode): void {
         const formatter = this.getNodeFormatter(node);
@@ -58,8 +59,8 @@ export class CustomFormatter extends AbstractFormatter {
 
 
 // Bind the class in your module
-export const CustomModule: Module<CustomServices, PartialLangiumServices> = {
+export const UniversalDataDefinitionLanguageModule: Module<UniversalDataDefinitionLanguageServices, PartialLangiumServices> = {
     lsp: {
-        Formatter: () => new CustomFormatter()
+        Formatter: () => new UniversalDataDefinitionLanguageFormatter()
     }
 };
