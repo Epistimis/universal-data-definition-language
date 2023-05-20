@@ -11,17 +11,26 @@
         "Programming Languages"
     ],
     "contributes": {
-        "languages": [{
-            "id": "universal-data-definition-language",
-            "aliases": ["Universal Data Definition Language", "universal-data-definition-language"],
-            "extensions": [".uddl"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "universal-data-definition-language",
-            "scopeName": "source.universal-data-definition-language",
-            "path": "./syntaxes/universal-data-definition-language.tmLanguage.json"
-        }]
+        "languages": [
+            {
+                "id": "universal-data-definition-language",
+                "aliases": [
+                    "Universal Data Definition Language",
+                    "universal-data-definition-language"
+                ],
+                "extensions": [
+                    ".uddl"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "universal-data-definition-language",
+                "scopeName": "source.universal-data-definition-language",
+                "path": "./syntaxes/universal-data-definition-language.tmLanguage.json"
+            }
+        ]
     },
     "activationEvents": [
         "onLanguage:universal-data-definition-language"
@@ -46,8 +55,8 @@
         "langium:watch": "langium generate --watch"
     },
     "dependencies": {
-        "chevrotain": "^9.1.0",
         "chalk": "^4.1.2",
+        "chevrotain": "^9.1.0",
         "commander": "^8.0.0",
         "langium": "^0.5.0",
         "vscode-languageclient": "^8.0.2",
@@ -55,12 +64,15 @@
         "vscode-uri": "^3.0.2"
     },
     "devDependencies": {
+        "@types/jest": "^29.5.1",
         "@types/node": "^14.17.3",
         "@types/vscode": "^1.56.0",
         "@typescript-eslint/eslint-plugin": "^5.28.0",
         "@typescript-eslint/parser": "^5.28.0",
         "eslint": "^8.17.0",
+        "jest": "^29.5.0",
         "langium-cli": "^0.5.0",
+        "ts-jest": "^29.1.0",
         "typescript": "^4.7.4"
     }
 }
