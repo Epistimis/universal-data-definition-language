@@ -508,5 +508,5 @@ terminal ANY_OTHER returns string:.;
  
 hidden terminal ML_COMMENT returns string:'/*'  -> '*/'  ;
 hidden terminal SL_COMMENT returns string:'//'  !('\n' | '\r' )('\r'? '\n' )?  ;
-hidden terminal WS returns string:(' ' | '\t' | '\r' | '\n' )+;
+hidden terminal WS:             /\s+/;
 
