@@ -1,0 +1,55 @@
+dm qwe123{
+    cdm mall{
+        cdm mall1{
+            observable shop1 'fghh hjjk';
+            observable shop2 'has siscription';
+            centity customer 'all customer' {
+                shop1 uniqueID [1:1] 'hjk hjjj';
+                shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+			    
+            };
+            centity product 'all product' :customer{
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+            };
+            observable shop3 'hjk hjjk';
+            centity product2 'all product' :product{
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+            };
+            centity product3 'fgh ghj' :product2 {
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+
+            };
+
+
+        }
+        cdm mall2{
+            observable shop1 'hjk hjk';
+            observable shop2 'has siscription';
+            centity customer 'all customer' {
+                shop1 uniqueID [1:1] 'hjk hjjj';
+                shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+			    
+            };
+            centity product 'all product' :customer{
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+            };
+            observable shop3 'hjk hjjk';
+            centity product2 'all product' :product{
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+            };
+           centity product3 'jkk' :customer {
+                shop1 uniqueID [1:1] 'hjk hjjj';
+			    shop2 name [1:1] 'The entitys name - implementation may be as a structure';
+
+           };
+
+
+ 
+        }
+    }
+}
