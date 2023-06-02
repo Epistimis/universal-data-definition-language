@@ -37,7 +37,7 @@ This pull request aims to add the following validation rules to the AST node of 
 
 ## Testing
 
-- For testing the validation function of an ast node, need to define some dummay objects replicating the property of the ast node. So created a file that will contain all the dummay objects.
+- For testing the validation function of an ast node, need to define some dummy objects replicating the property of the ast node. So created a file that will contain all the dummay objects.
 - To avoid complications, helper mathods are created, which will only take the perticular property of the validating node, to add validation. And the test has been done on the helper methods.
 
 ![All test cases have passed](uddl_test/unit_test_screenshots/unittest.jpg)

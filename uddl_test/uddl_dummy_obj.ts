@@ -1,5 +1,9 @@
 import { ValidationAcceptor} from 'langium';
 
+// For testing the validation function of an ast node, need to define some dummy objects replicating the property of the ast node. 
+//So created a file that will contain all the dummay objects.
+
+
 export const accept: ValidationAcceptor = () => {};
 
 export const conobservable1 = {
@@ -96,7 +100,7 @@ export const conparpathnode1 = {
 
 export const cassoc1 = {
   name:'entityab',
-  discription:'',
+  description:'',
   composition:[concomposition1,concomposition2],
   specializes:{ref:{centity1}},
   participant:cparticipent1 

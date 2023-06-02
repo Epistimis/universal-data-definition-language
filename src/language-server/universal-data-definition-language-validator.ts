@@ -3,12 +3,15 @@ import * as element from './generated/ast';
 import { UniversalDataDefinitionLanguageAstType} from './generated/ast';
 import type { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
 
+// Helper constants
+
+export const reservedWordsArray = ['abstract','alias','any','attribute' ,'bitfield' ,'bitmask' ,'bitset' ,'boolean' ,'case' ,'char' ,'component' ,'connector' ,'const' ,'consumes' ,'context' ,'custom' ,'default','double' ,'emits' ,'enum' ,'eventtype' ,'exception' ,'factory' ,'false','finder' ,'fixed' ,'float' ,'getraises' ,'home' ,'import','in' ,'inout' ,'interface','local' ,'long' ,'manages' ,'map' ,'mirrorport' ,'module' ,'multiple' ,'native','object' ,'octet','oneway' ,'out' ,'port' ,'porttype' ,'primarykey' ,'private' ,'provides' ,'public' ,'publishes' ,'raises' ,'readonly' ,'sequence' , 'setraises' ,'short' ,'string' ,'struct' ,'supports','switch','true' ,'truncatable','typedef','typeid' ,'typename' ,'typeprefix','union','unsigned','uses','valuebase','valuetype','void','wchar','wstring']
+export const cycleInSpec= 'An ConceptualEntity can not be specialization of itself.';
+export const notValidIdentifier = 'This element name must not contain any special character, it should be alphanumeric.';
+export const notReservedWords = 'Reserved words can not be assigned as element"s name.';
 /**
  * Registry for validation checks.
  */
-
-export const reservedWords = ['abstract','alias','any','attribute' ,'bitfield' ,'bitmask' ,'bitset' ,'boolean' ,'case' ,'char' ,'component' ,'connector' ,'const' ,'consumes' ,'context' ,'custom' ,'default','double' ,'emits' ,'enum' ,'eventtype' ,'exception' ,'factory' ,'false','finder' ,'fixed' ,'float' ,'getraises' ,'home' ,'import','in' ,'inout' ,'interface','local' ,'long' ,'manages' ,'map' ,'mirrorport' ,'module' ,'multiple' ,'native','object' ,'octet','oneway' ,'out' ,'port' ,'porttype' ,'primarykey' ,'private' ,'provides' ,'public' ,'publishes' ,'raises' ,'readonly' ,'sequence' , 'setraises' ,'short' ,'string' ,'struct' ,'supports','switch','true' ,'truncatable','typedef','typeid' ,'typename' ,'typeprefix','union','unsigned','uses','valuebase','valuetype','void','wchar','wstring']
-
 export class UniversalDataDefinitionLanguageValidationRegistry extends ValidationRegistry {
     constructor(services: UniversalDataDefinitionLanguageServices) {
         super(services);     
@@ -24,10 +27,13 @@ export class UniversalDataDefinitionLanguageValidationRegistry extends Validatio
 }
 
 /**
- * Implementation of custom validations.
+ * Implementation of custom validations. All validations are from UDDL java OCL files.
  */
 
-export class UniversalDataDefinitionLanguageValidator {
+export default class UniversalDataDefinitionLanguageValidator {
+    //Validation for
+    // A DataModel's name is not an IDL reserved words,(CR 242) and
+    // The name of an Element is a valid identifier.
 
     checkElementHasValidIdentifierOrReservedWord(uddlelm: element.UddlElement, accept: ValidationAcceptor){
         if(uddlelm.name){
@@ -40,26 +46,52 @@ export class UniversalDataDefinitionLanguageValidator {
 
     hasValidIdentifierOrOrReservedWord(name: string): string {
         if(name.match(/^[a-zA-Z0-9]+$/) === null){
-           return 'This element name must not contain any special charecter, it should be alphanumeric.';
-        }else if(reservedWords.includes(name.toLocaleLowerCase())){
-           return 'Reserved words can not be assigned as element"s name.';
+           return notValidIdentifier;
+        }else if(reservedWordsArray.includes(name.toLocaleLowerCase())){
+           return notReservedWords;
         }
         return '';
     }
+
+    //Validation for
+        /*
+     * The following elements have a non-empty description:
+     *   - Observable
+     *   - Unit
+     *   - Landmark
+     *   - ReferencePoint
+     *   - MeasurementSystem
+     *   - MeasurementSystemAxis
+     *   - CoordinateSystem
+     *   - CoordinateSystemAxis
+     *   - MeasurementSystemConversion
+     *   - Boolean
+     *   - Character
+     *   - Numeric
+     *   - Integer
+     *   - Natural
+     *   - NonNegativeReal
+     *   - Real
+     *   - String
+     */
 
     nonEmptyDescription(element: element.ConceptualObservable | element.LogicalUnit | element.LogicalLandmark | element.LogicalReferencePoint | 
         element.LogicalMeasurementSystem | element.LogicalMeasurementSystemAxis | element.LogicalCoordinateSystem | element.LogicalCoordinateSystemAxis | 
         element.LogicalMeasurementSystemConversion | element.LogicalBoolean | element.LogicalCharacter | element.LogicalNumeric | element.LogicalInteger | 
         element.LogicalNatural | element.LogicalNonNegativeReal | element.LogicalReal | element.LogicalString, accept:ValidationAcceptor):void{
        
-        if(!this.hasDiscription(element?.description)){
+        if(!this.hasDescription(element?.description)){
             accept('error', 'This element must have a description.', {node : element, property : "description" });
         }
     }
 
-    hasDiscription(des: string|undefined):boolean{
+    hasDescription(des: string|undefined):boolean{
         return des !== undefined && des?.trim().length !== 0;
     }
+
+    //Validation for
+    //An ConceptualEntity must have at least 2 characteristics
+    // An ConceptualEntity is not a specialization of itself.
 
     checkEntityHasAtLeast2CharacteristicOrnoCyclesInSpecialization(entity: element.ConceptualEntity, accept: ValidationAcceptor): void{
         let centityspec: Set<string> = new Set();
@@ -76,9 +108,9 @@ export class UniversalDataDefinitionLanguageValidator {
         if (spec !== undefined) {
             if(centityspec.has(spec.name)){
                 accept('error', 'An ConceptualEntity can not be specialization of itself.', { node: entity, property: "composition" });
-                throw new Error('An ConceptualEntity can not be specialization of itself.');
+                throw new Error(cycleInSpec);
             }else{
-                centityspec.add(spec.name);
+               
                 result.concat(this.getEntityCharacteristicsOrCycle(spec, centityspec, accept)); 
             }
         }

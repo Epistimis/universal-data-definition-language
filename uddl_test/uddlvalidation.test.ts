@@ -1,13 +1,14 @@
 import { ConceptualDataModel,ConceptualEntity, LogicalDataModel} from '../src/language-server/generated/ast';
-import {UniversalDataDefinitionLanguageValidator} from "../src/language-server/universal-data-definition-language-validator"
-import * as dummyObj from './uddl_dummy_obj'
+import {cycleInSpec,notReservedWords,notValidIdentifier} from "../src/language-server/universal-data-definition-language-validator";
+import UniversalDataDefinitionLanguageValidator from "../src/language-server/universal-data-definition-language-validator";
+import * as dummyObj from './uddl_dummy_obj';
 
 const obj = new UniversalDataDefinitionLanguageValidator();
 
 describe('langium', () => {
   
   test('check if identifier is alphanumeric', () => {
-    expect(obj.hasValidIdentifierOrOrReservedWord('uddl1@23')).toBe('This element name must not contain any special charecter, it should be alphanumeric.');
+    expect(obj.hasValidIdentifierOrOrReservedWord('uddl1@23')).toBe(notValidIdentifier);
   });
 
   test('check if identifier is valid and not reserved word', () => {
@@ -15,15 +16,15 @@ describe('langium', () => {
   });
 
   test('check if identifier is a reserved word', () => {
-    expect(obj.hasValidIdentifierOrOrReservedWord('bitmask')).toBe('Reserved words can not be assigned as element"s name.');
+    expect(obj.hasValidIdentifierOrOrReservedWord('bitmask')).toBe(notReservedWords);
   });
  
   test('check if elements have description', () => {
-    expect(obj.hasDiscription('has description.')).toBeTruthy();
+    expect(obj.hasDescription('has description.')).toBeTruthy();
   });
 
   test('check if elements do not have description', () => {
-    expect(obj.hasDiscription('   ')).toBeFalsy();
+    expect(obj.hasDescription('   ')).toBeFalsy();
   });
 
   test('check if elemet has unique name', () => {
@@ -54,7 +55,7 @@ describe('langium', () => {
 
   test('check if conceptualEntity has cycle in specialization', () => {
     let centityspec = new Set<string>();
-    expect(()=> obj.getEntityCharacteristicsOrCycle(dummyObj.centity3 as ConceptualEntity, centityspec, dummyObj.accept)).toThrow('An ConceptualEntity can not be specialization of itself.');
+    expect(()=> obj.getEntityCharacteristicsOrCycle(dummyObj.centity3 as ConceptualEntity, centityspec, dummyObj.accept)).toThrow(cycleInSpec);
   });
 
 });
