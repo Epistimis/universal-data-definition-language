@@ -3,7 +3,7 @@ import {
     LangiumServices, LangiumSharedServices, Module, PartialLangiumServices
 } from 'langium';
 import { UniversalDataDefinitionLanguageGeneratedModule, UniversalDataDefinitionLanguageGeneratedSharedModule } from './generated/module';
-import { UniversalDataDefinitionLanguageValidationRegistry, UniversalDataDefinitionLanguageValidator } from './universal-data-definition-language-validator';
+import { UniversalDataDefinitionLanguageValidationRegistry, UniversalDataDefinitionLanguageValidator}  from './universal-data-definition-language-validator';
 
 /**
  * Declaration of custom services - add your own service classes here.

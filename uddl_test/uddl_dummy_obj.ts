@@ -1,8 +1,7 @@
 import { ValidationAcceptor} from 'langium';
 
 // For testing the validation function of an ast node, need to define some dummy objects replicating the property of the ast node. 
-//So created a file that will contain all the dummay objects.
-
+//So created this file to contain all the dummy objects.
 
 export const accept: ValidationAcceptor = () => {};
 
@@ -52,20 +51,20 @@ export const concomposition2 = {
   description:"this is bc"
 };
 
-export const centity1:unknown = {
+export const centity1:any = {
   name:'entityab',
   composition: [concomposition1],
   basisEntity:[conbasis1,conbasis2]
 };
 
-export const centity2:unknown = {
+export const centity2:any = {
   name:'entitybc',
   composition: [concomposition1, concomposition2],
   specializes:{ref:centity1},
   basisEntity:[conbasis1,conbasis2]
 };
 
-export const centity3:unknown = {
+export const centity3:any = {
   name:'entityab',
   composition: [concomposition1],
   specializes:{ref:centity2},
@@ -106,26 +105,53 @@ export const cassoc1 = {
   participant:cparticipent1 
 };
 
-interface dm extends cdm,ldm,pdm {};
+//interface dm extends cdm {};
 
-interface cdm  {
-  cdm:cdm[],
-  name:string,  
-};
+// interface cdm  {
+//   cdm:cdm[],
+//   name:string,
+//   elms:any[]
+// };
 
-interface ldm  {
-  ldm:ldm[],
-  name:string,  
-};
+// interface ldm  {
+//   ldm:ldm[],
+//   name:string,  
+// };
 
-interface pdm  {
-    pdm:pdm[],
-    name:string,  
-};
+// interface pdm  {
+//     pdm:pdm[],
+//     name:string,  
+// };
 
-export const elm:dm = {
+export const elm= {
   name:'test',
-  cdm:[{name:'x',cdm:[{name:'a',cdm:[{name:'b',cdm:[{name:'c',cdm:[{name:'d',cdm:[]}]}]},{name:'d',cdm:[]}]}]}],
-  ldm:[{name:'x',ldm:[{name:'a',ldm:[{name:'b',ldm:[{name:'c',ldm:[{name:'d',ldm:[]}]}]},{name:'e',ldm:[]}]}]}],
-  pdm:[{name:'x',pdm:[{name:'a',pdm:[{name:'b',pdm:[{name:'c',pdm:[{name:'d',pdm:[]}]}]},{name:'d',pdm:[]}]}]}]
+  cdm:[{name:'a',
+        cdm:[{name:'b',
+              cdm:[{name:'c',
+                    cdm:[{name:'d',
+                          cdm:[],
+                          elms:[conbasis1,conobservable1, centity1]
+                        }],
+                    elms:[conbasis2,conobservable2, centity2]
+                  }],
+              elms:[conbasis1,conobservable1, centity1]
+             }],
+        elms:[conbasis2,conobservable2, centity2]
+  }],
+  ldm:[{name:'e',
+        ldm:[{name:'e',
+               ldm:[],
+               elms:[conbasis1,conobservable1, centity1]
+              }],
+        elms:[conbasis2,conobservable2, centity2]
+  }],
+  pdm:[{name:'g',
+        pdm:[{name:'h',
+              pdm:[],
+              elms:[conbasis1,conobservable1, centity1]
+            }],
+        elms:[conbasis2,conobservable2, centity3]
+  }],
+
 };
+
