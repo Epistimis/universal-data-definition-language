@@ -36,7 +36,7 @@ export  class UniversalDataDefinitionLanguageValidator {
     //Validation for
     // A DataModel's name is not an IDL reserved words,(CR 242) 
     //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/datamodel.ocl
-    // The name of an Element is a valid identifier.
+    // The name of an Element is a valid identifier. inv nameIsValidIdentifier
     //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/uddl.ocl
     
     checkElementHasValidIdentifierOrReservedWord(uddlelm: element.UddlElement, accept: ValidationAcceptor){
@@ -78,6 +78,7 @@ export  class UniversalDataDefinitionLanguageValidator {
      *   - Real
      *   - String
      */
+    //inv nonEmptyDescription
     //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/uddl.ocl
 
 
@@ -97,7 +98,7 @@ export  class UniversalDataDefinitionLanguageValidator {
 
     //Validation for
     //An ConceptualEntity must have at least 2 characteristics
-    // An ConceptualEntity is not a specialization of itself.
+    // An ConceptualEntity is not a specialization of itself.  inv noCyclesInSpecialization
     //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 
     checkEntityHasAtLeast2CharacteristicOrnoCyclesInSpecialization(entity: element.ConceptualEntity, accept: ValidationAcceptor): void{
@@ -126,8 +127,13 @@ export  class UniversalDataDefinitionLanguageValidator {
         return result;
     }
 
+    // An Entity does not compose the same Observable more than once.
+    //inv observableComposedOnce
+    //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conditional_observableComposedOnce.ocl
+
+
     //Validation for
-    //Every UddlElement in an DataModel has a unique name.
+    //Every UddlElement in an DataModel has a unique name. inv childModelsHaveUniqueNames
     //UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/datamodel.ocl
 
     checkElementHasUniqueName(Modal: element.DataModel, accept: ValidationAcceptor): void{
