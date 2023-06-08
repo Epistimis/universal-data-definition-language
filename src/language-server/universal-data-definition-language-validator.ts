@@ -175,29 +175,34 @@ export  class UniversalDataDefinitionLanguageValidator {
         this.checkName(Modal.ldm, accept, reported);
         this.checkName(Modal.pdm, accept, reported);
     }
-    checkName(Model: element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[], accept: ValidationAcceptor, reported?: Set<string>): boolean{
+    checkName(model: element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[], accept: ValidationAcceptor, reported?: Set<string>): boolean{
         let result = false;
+        if(reported?.has(model[0].name)){
+            accept('error', 'This element must must have unique name', {node: model[0], property: "name"});
+        }else{
+            reported?.add(model[0].name)
+        }
         
-        Model.forEach((dmt) => { 
+        // Model.forEach((dmt) => { 
              
-                dmt.element?.forEach((elm)=> {
+        //         dmt.element?.forEach((elm)=> {
                     
-                    if(reported?.has(elm?.name?.toLocaleLowerCase())){
-                        accept('error', 'This element must must have unique name', {node: elm, property: "name"});
-                        result = true;    
-                    }else{
-                        reported?.add(elm?.name?.toLocaleLowerCase());
-                    }
-                });
+        //             if(reported?.has(elm?.name?.toLocaleLowerCase())){
+        //                 accept('error', 'This element must must have unique name', {node: elm, property: "name"});
+        //                 result = true;    
+        //             }else{
+        //                 reported?.add(elm?.name?.toLocaleLowerCase());
+        //             }
+        //         });
              
-            if('cdm' in dmt && dmt?.cdm!.length > 0){
-                result = this.checkName(dmt.cdm, accept);
-            }else if('ldm' in dmt && dmt?.ldm!.length > 0){
-                result = this.checkName(dmt.ldm, accept);
-            }else if('pdm' in dmt && dmt?.pdm!.length > 0){
-                result = this.checkName(dmt.pdm, accept);
-            }       
-        }) 
+        //     if('cdm' in dmt && dmt?.cdm!.length > 0){
+        //         result = this.checkName(dmt.cdm, accept);
+        //     }else if('ldm' in dmt && dmt?.ldm!.length > 0){
+        //         result = this.checkName(dmt.ldm, accept);
+        //     }else if('pdm' in dmt && dmt?.pdm!.length > 0){
+        //         result = this.checkName(dmt.pdm, accept);
+        //     }       
+        // }) 
         return result;
     }
     
