@@ -15,6 +15,11 @@ export const conobservable2 = {
   description: 'this is bc'
 };
 
+export const conobservable3 = {
+  name: 'Identifier',
+  description: 'this is bc'
+};
+
 export const conbasis1 = {
   name: 'basisab',
   description: 'this is ab'
@@ -35,15 +40,15 @@ export const condomain2 = {
   description: 'this is bc'
 };
 
-export const concomposition1 = {
-  type:conobservable1,
+export const concomposition1: unknown = {
+  type:conobservable3,
   rolename:'compoab',
-  upperBound:2,
+  upperBound:1,
   lowerBound:1,
   description:"this is ab"
 };
 
-export const concomposition2 = {
+export const concomposition2: unknown = {
   type:conobservable2,
   rolename:'compobc',
   upperBound:2,
@@ -51,15 +56,23 @@ export const concomposition2 = {
   description:"this is bc"
 };
 
+export const concomposition3: unknown = {
+  type:conobservable2,
+  rolename:'compocd',
+  upperBound:-1,
+  lowerBound:0,
+  description:"this is bc"
+};
+
 export const centity1:any = {
   name:'entityab',
-  composition: [concomposition1],
+  composition: [concomposition2],
   basisEntity:[conbasis1,conbasis2]
 };
 
 export const centity2:any = {
   name:'entitybc',
-  composition: [concomposition1, concomposition2],
+  composition: [ concomposition2,concomposition2],
   specializes:{ref:centity1},
   basisEntity:[conbasis1,conbasis2]
 };
@@ -104,24 +117,6 @@ export const cassoc1 = {
   specializes:{ref:{centity1}},
   participant:cparticipent1 
 };
-
-//interface dm extends cdm {};
-
-// interface cdm  {
-//   cdm:cdm[],
-//   name:string,
-//   elms:any[]
-// };
-
-// interface ldm  {
-//   ldm:ldm[],
-//   name:string,  
-// };
-
-// interface pdm  {
-//     pdm:pdm[],
-//     name:string,  
-// };
 
 export const elm= {
   name:'test',

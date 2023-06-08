@@ -2,38 +2,19 @@
 
 ## Description
 
-This pull request aims to add the following validation rules to the AST node of UDDL.
+This pull request aims to add the following validation rules to the AST node of UDDL. All this validation rules are in UDDL repository.
+                              
+  File: com.epistimis.uddl/src/com.epistimis.uddl.constraints/uddl.ocl
+  Context: UddlElement
+  Invariants: nameIsValidIdentifier, nonEmptyDescription
 
-  Context UddlElement:                               
-    1. The name of an Element is a valid identifier.
-    2. The following elements have a non-empty description:
-       - Observable
-       - Unit
-       - Landmark
-       - ReferencePoint
-       - MeasurementSystem
-       - MeasurementSystemAxis
-       - CoordinateSystem
-       - CoordinateSystemAxis
-       - MeasurementSystemConversion
-       - Boolean
-       - Character
-       - Numeric
-       - Integer
-       - Natural
-       - NonNegativeReal
-       - Real
-       - String
-
-  Context DataModel:
-    1.  Every UddlElement in an DataModel has a unique name.
-        Note: This is equivalent constraint to hasUniqueName. 
-	      Original constraint modified to work with Kepler
-    2.  A DataModel's name is not an IDL reserved word.
-  
-  Context ConceptualEntity:
-    1.  A ConceptualEntity must have at least two charectaristic.
-    2.  A ConceptualEntity is not a specialization of itself.
+  File: com.epistimis.uddl/src/com.epistimis.uddl.constraints/uddl.ocl
+  Context: DataModel
+  Invariants: nameIsValidIdentifier, nonEmptyDescription
+    
+  File: com.epistimis.uddl/src/com.epistimis.uddl.constraints/uddl.ocl
+   Context: ConceptualEntity
+  Invariants: nameIsValidIdentifier, nonEmptyDescription
 
 ## Testing
 
