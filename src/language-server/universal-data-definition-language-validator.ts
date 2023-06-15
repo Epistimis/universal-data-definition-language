@@ -20,7 +20,8 @@ export class UniversalDataDefinitionLanguageValidationRegistry extends Validatio
         super(services);     
         const validator = services.validation.UniversalDataDefinitionLanguageValidator;
         const checks: ValidationChecks<UniversalDataDefinitionLanguageAstType> = {
-            ConceptualEntity:[ validator.checkEntityHasAtLeast2CharacteristicOrnoCyclesInSpecialization, validator.checkObservableComposedOnce, validator.checkHasUniqueID],
+            ConceptualEntity:[validator.checkHasUniqueID, validator.checknoCyclesInSpecialization, validator.checkObservableComposedOnce, validator.checkHasAtLeastOneLocalConceptualCharacteristic],//validator.checkHasUniqueID
+            ConceptualAssociation: [validator.checkHasAtLeastOneLocalConceptualCharacteristic, validator.checkHasAtLeastTwoParticipants],
             UddlElement: validator.checkElementHasValidIdentifierOrReservedWord,
             DataModel: validator.checkElementHasUniqueName,
             ConceptualObservable: validator.nonEmptyDescription,
@@ -31,8 +32,14 @@ export class UniversalDataDefinitionLanguageValidationRegistry extends Validatio
 }
 
 /**
- * Implementation of custom validations. All validations are from UDDL java OCL files.
+ * All validation functions are using a separate helper function, 
+ * as the main validator function is not allowed to return any value, it will require an extra throw error call, for testing purpose. 
+ * extra helper function with return value saves that.
  */
+
+/**
+* Implementation of custom validations. All validations are from UDDL java OCL files.
+*/
 export  class UniversalDataDefinitionLanguageValidator {
     /** 
     * A DataModel's name is not an IDL reserved word,(CR 242).
@@ -43,24 +50,27 @@ export  class UniversalDataDefinitionLanguageValidator {
     * invariant nameIsValidIdentifier
     */
     checkElementHasValidIdentifierOrReservedWord(model: element.UddlElement, accept: ValidationAcceptor){  
-        if(model.name){
-            let result = this.hasValidIdentifierOrReservedWord(model.name);
+        if(model?.name){
+            let result = this.hasValidIdentifier(model.name) || this.isReservedWord(model.name);
             if(result !== ''){
                 accept('error', result, {node: model, property: "name" });       
             }
         }
     }
-    hasValidIdentifierOrReservedWord(name: string) {
+    hasValidIdentifier(name: string){
         if(name.match(/^[a-zA-Z0-9]+$/) === null){
            return notValidIdentifier;
-        }else if(reservedWordsArray.includes(name.toLocaleLowerCase())){
-           return notReservedWords;
+        }
+        return '';
+    }
+    isReservedWord(name: string){
+        if(reservedWordsArray.includes(name.toLocaleLowerCase())){
+            return notReservedWords;
         }
         return '';
     }
 
     /**
-     * Validation for
      * Elements have a non-empty description.
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/uddl.ocl
      * invariant nonEmptyDescription
@@ -78,39 +88,76 @@ export  class UniversalDataDefinitionLanguageValidator {
         return des !== undefined && des?.trim().length !== 0;
     }
 
+    /**
+     * An ConceptualEntity has at least one ConceptualCharacteristic defined locally (not through generalization).
+     * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+     * invariant hasAtLeastOneLocalConceptualCharacteristic
+     */
+    checkHasAtLeastOneLocalConceptualCharacteristic(model: element.ConceptualEntity | element.ConceptualAssociation, accept: ValidationAcceptor){
+        if(!this.hasAtLeastOneLocalConceptualCharacteristic(model)){
+            accept('error', 'This element must have a Description.', {node : model, property : "composition" });
+        }
+    }
+    hasAtLeastOneLocalConceptualCharacteristic(model: element.ConceptualEntity | element.ConceptualAssociation): boolean{
+        if('participant' in model){
+            let charactatistics = new Set([...model.participant, ...model.composition])
+            if(charactatistics.size >= 1){
+                return true
+            }
+        }else{
+            if(model.composition.length >=1){
+                return true
+            }
+        }
+        return false
+    }
 
     /**
-     * Validation for
-     * An ConceptualEntity must have at least 2 characteristics
      * An ConceptualEntity is not a specialization of itself.
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
      * invariant noCyclesInSpecialization
      */
-    checkEntityHasAtLeast2CharacteristicOrnoCyclesInSpecialization(entity: element.ConceptualEntity, accept: ValidationAcceptor): void{
-        let centityspec: Set<string> = new Set();
-        const result = this.getEntityCharacteristicsOrCycle(entity, centityspec, accept);
-        if (result.length < 2) { 
-            accept('error', 'Entity should have at least 2 characteristics.', {node: entity, property: "composition" });
+    checknoCyclesInSpecialization(entity: element.ConceptualEntity, accept: ValidationAcceptor): void{
+        let centityspec: Set<string> = new Set();   
+        if (this.getEntityCycle(entity, centityspec)) { 
+            accept('error', 'An ConceptualEntity can not be specialization of itself.', {node: entity, property: "composition" });
         }    
     }
-    getEntityCharacteristicsOrCycle(entity: element.ConceptualEntity, centityspec: Set<string>, accept: ValidationAcceptor): element.ConceptualCharacteristic[]{
-        let result: element.ConceptualCharacteristic[] = [];
-        centityspec.add(entity.name);
+    getEntityCycle(entity: element.ConceptualEntity, centityspec: Set<string>): boolean{
+        let result = false
+        centityspec.add(entity?.name);
         const spec = entity.specializes?.ref;
-        if (spec !== undefined) {
+        if(spec !== undefined) {
             if(centityspec.has(spec.name)){
-                accept('error', 'An ConceptualEntity can not be specialization of itself.', { node: entity, property: "composition" });
-                throw new Error(cycleInSpec);
+                return true;
             }else{
-               
-                result.concat(this.getEntityCharacteristicsOrCycle(spec, centityspec, accept)); 
+                result = this.getEntityCycle(spec, centityspec); 
             }
         }
-        // No matter what, check this entity
-        result = result.concat(entity.composition);
         return result;
     }
 
+    /**
+     * An ConceptualAssociation has at least two Participants.
+     * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+     * invariant hasAtLeastTwoParticipants
+     */
+    checkHasAtLeastTwoParticipants(model: element.ConceptualAssociation , accept: ValidationAcceptor){
+        const result = this.hasAtLeastTwoParticipants(model)
+        if(result.length < 2){
+            accept('error', 'An ConceptualEntity can not be specialization of itself.', {node: model, property: "participant" });
+        }
+    }
+    hasAtLeastTwoParticipants(model: element.ConceptualAssociation | element.ConceptualEntity ): element.ConceptualParticipant[]{
+        let result: element.ConceptualParticipant[] = [];  
+        if('participant' in model){
+            result = result.concat(model.participant)
+            if(model.specializes?.ref){
+                result = result.concat(this.hasAtLeastTwoParticipants(model.specializes?.ref))
+            }
+        }
+        return result
+    }
 
     /**
      * An Entity does not compose the same Observable more than once.
@@ -118,23 +165,27 @@ export  class UniversalDataDefinitionLanguageValidator {
      * invariant observableComposedOnce
      */
     checkObservableComposedOnce(entity: element.ConceptualEntity, accept: ValidationAcceptor){
-        if(this.observableComposedOnce(entity)){
+        let observables: Set<string> = new Set();
+        if(this.observableComposedOnce(entity, observables)){
             accept('error', 'An Entity does not compose the same Observable more than once', {node: entity , property: "name"});
         }
     }
-    observableComposedOnce(model: element.ConceptualEntity):boolean{
-        let observables: Set<string> = new Set();
+    observableComposedOnce(model: element.ConceptualEntity, observablecontainer: Set<string>):boolean{
+        
         let result = false
         model.composition.forEach(item =>{
-        if(item.type.ref?.$type === 'ConceptualObservable'){
-           if(observables.has(item.type.ref?.name)){
-               result =  true;
-           }else{
-              observables.add(item.type.ref?.name)
-           }
+            if(item.type.ref?.$type === 'ConceptualObservable'){
+               if(observablecontainer.has(item.type.ref?.name)){
+                    result = true;
+               }else{
+                    observablecontainer.add(item.type.ref?.name)
+               }
+            }
+        })
+        if(model.specializes?.ref){
+            result = this.observableComposedOnce(model.specializes?.ref, observablecontainer)
         }
-       })
-       return result;
+        return result;
     }
 
     /**
@@ -143,66 +194,60 @@ export  class UniversalDataDefinitionLanguageValidator {
      * invariant hasUniqueID
      */
     checkHasUniqueID(entity: element.ConceptualEntity, accept: ValidationAcceptor){
-
-        if(this.hasUniqueID(entity)){
+        let observables: Set<string> = new Set();
+        if(!this.hasUniqueID(entity, observables)){
             accept('error', 'A ConceptualEntity needs a ConceptualComposition whose type is an ConceptualObservable named "Identifier"', {node: entity , property: "name"});  
         }
     }
-    hasUniqueID(entity: element.ConceptualEntity): boolean{
+    hasUniqueID(entity: element.ConceptualEntity, observables: Set<string>): boolean{
         let hasID = false;
         entity.composition.forEach(item =>{
             if(item.type.ref?.$type === 'ConceptualObservable'){
                 if(item.type.ref?.name.toLocaleLowerCase() === 'Identifier'.toLocaleLowerCase()){
-                    hasID = true
+                   hasID = true
                 }
             }
         })
-        return !hasID;
+        if(entity.specializes?.ref){
+            hasID = this.hasUniqueID(entity.specializes?.ref, observables)
+        }
+        return hasID;
     }
 
     /**
-     * Validation for
      * Every UddlElement in an DataModel has a unique name. 
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/datamodel.ocl 
      * invariant childModelsHaveUniqueNames
      */
-    checkElementHasUniqueName(Modal: element.DataModel, accept: ValidationAcceptor): void{
-        let reported = new Set<string>();
-        // this.checkName(Modal.cdm, uddlNameContainer, accept);
-        // this.checkName(Modal.ldm, uddlNameContainer, accept);
-        // this.checkName(Modal.pdm, uddlNameContainer, accept);
-        this.checkName(Modal.cdm, accept, reported);
-        this.checkName(Modal.ldm, accept, reported);
-        this.checkName(Modal.pdm, accept, reported);
-    }
-    checkName(model: element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[], accept: ValidationAcceptor, reported?: Set<string>): boolean{
-        let result = false;
-        if(reported?.has(model[0].name)){
-            accept('error', 'This element must must have unique name', {node: model[0], property: "name"});
-        }else{
-            reported?.add(model[0].name)
-        }
+    checkElementHasUniqueName(model: element.DataModel, accept: ValidationAcceptor): void{
+       // let reported = new Set<string>();
         
-        // Model.forEach((dmt) => { 
-             
-        //         dmt.element?.forEach((elm)=> {
-                    
-        //             if(reported?.has(elm?.name?.toLocaleLowerCase())){
-        //                 accept('error', 'This element must must have unique name', {node: elm, property: "name"});
-        //                 result = true;    
-        //             }else{
-        //                 reported?.add(elm?.name?.toLocaleLowerCase());
-        //             }
-        //         });
-             
-        //     if('cdm' in dmt && dmt?.cdm!.length > 0){
-        //         result = this.checkName(dmt.cdm, accept);
-        //     }else if('ldm' in dmt && dmt?.ldm!.length > 0){
-        //         result = this.checkName(dmt.ldm, accept);
-        //     }else if('pdm' in dmt && dmt?.pdm!.length > 0){
-        //         result = this.checkName(dmt.pdm, accept);
-        //     }       
-        // }) 
+       if( this.checkName(model.cdm) || this.checkName(model.ldm) || this.checkName(model.pdm) ){
+        accept('error', 'This element must must have unique name', {node: model, property: "name"});
+       }
+     
+        //element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[]
+    }
+    checkName(model: element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[]): boolean{
+        let result = false;
+        let reportedin = new Set<string>();
+
+        model.forEach(item =>{
+            if(reportedin.has(item.name)){
+                result = true
+            }else{
+                reportedin.add(item.name)
+                if('cdm' in item && item.cdm.length){
+                    result = this.checkName(item.cdm)
+                }
+                if('ldm' in item && item.ldm.length){
+                    result = this.checkName(item.ldm)
+                }
+                if('pdm' in item && item.pdm.length){
+                    result = this.checkName(item.pdm)
+                }   
+            }
+        })
         return result;
     }
     
@@ -212,14 +257,14 @@ export  class UniversalDataDefinitionLanguageValidator {
      * invariant lowerBound_LTE_UpperBound
      */
     checkLowerBound_LTE_UpperBound(model: element.ConceptualCharacteristic, accept: ValidationAcceptor){
-        if(this.lowerBound_LTE_UpperBound(model)){
+        if(!this.lowerBound_LTE_UpperBound(model)){
             accept('error', "A ConceptualCharacteristic's lowerBound is less than or equal to its upperBound, unless its upperBound is -1", {node: model, property: "lowerBound"});
         }
     }
     lowerBound_LTE_UpperBound(model: element.ConceptualCharacteristic):boolean{
         
         if(model.lowerBound && model.upperBound && model.upperBound !== -1){
-          return !(model.lowerBound <= model.upperBound);
+          return model.lowerBound <= model.upperBound;
         }
         return false;
     }
@@ -230,13 +275,13 @@ export  class UniversalDataDefinitionLanguageValidator {
      * invariant upperBoundValid
      */
      checkUpperBoundValid(model: element.ConceptualCharacteristic, accept: ValidationAcceptor){
-        if(this.upperBoundValid(model)){
+        if(!this.upperBoundValid(model)){
             accept('error', "A ConceptualCharacteristic's upperBound is equal to -1 or greater than 1", {node: model, property: "upperBound"});
         }
      }
      upperBoundValid(model: element.ConceptualCharacteristic):boolean{
          if(model.upperBound){
-            return !(model.upperBound == 1 || model.upperBound >= 1);
+            return model.upperBound == -1 || model.upperBound >= 1;
          }
          return false;
      }
@@ -247,18 +292,31 @@ export  class UniversalDataDefinitionLanguageValidator {
      * invariant lowerBoundValid
      */
      checkLowerBoundValid(model: element.ConceptualCharacteristic, accept: ValidationAcceptor){
-        if(this.lowerBoundValid(model)){
+        if(!this.lowerBoundValid(model)){
             accept('error', "A ConceptualCharacteristic's lowerBound is greater than or equal to zero", {node: model, property: "upperBound"});
         }
      }
      lowerBoundValid(model: element.ConceptualCharacteristic):boolean{
         if(model.lowerBound){
-            return !(model.lowerBound >= 0);
+            return model.lowerBound >= 0;
          }
          return false;
      }
 
+    /**  The rolename of a ConceptualCharacteristic is a valid identifier.
+    * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    * invariant rolenameIsValidIdentifier
+    */
+    checkRolenameIsValidIdentifier(model: element.ConceptualCharacteristic, accept: ValidationAcceptor){
+        const result = this.hasValidIdentifier(model.rolename);
+        if(!result){
+            accept('error', result, {node: model, property: "rolename" }); 
+        } 
+    }
+   
 }
+
+
 
 
 
