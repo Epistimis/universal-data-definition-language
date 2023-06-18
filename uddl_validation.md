@@ -31,6 +31,14 @@ This pull request aims to add the following validation rules to the AST node of 
     File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
     Context: ConceptualEntity
     Invariant: hasUniqueID
+
+    File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    Context: ConceptualEntity
+    Invariant: characteristicsHaveUniqueRolenames
+
+     File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    Context: ConceptualAssociation
+    Invariant: hasAtLeastTwoParticipants
      
     File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/datamodel.ocl
     Context: DataModel
@@ -49,8 +57,8 @@ This pull request aims to add the following validation rules to the AST node of 
     Invariant: lowerBoundValid
 
     File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
-    Context: ConceptualAssociation
-    Invariant: hasAtLeastTwoParticipants
+    Context: ConceptualCharacteristic
+    Invariant: rolenameIsValidIdentifier
 
 ## Testing
 

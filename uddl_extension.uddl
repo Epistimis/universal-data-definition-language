@@ -1,8 +1,32 @@
-dm abc123{
-    cdm mall{
-        observable mall 'jkk hjj';
-        observable indentity 'jkk jkk';
-        
-        
-    }
+dm mymodel 'Base data structures to support People, Places and Things' {
+
+	cdm Conceptual 'Need to start at Conceptual Level' {
+		observable Identifier 'this is Identifier';
+		observable Biometric 'this is Identifier';
+		observable AddressableEntity 'this is Identifier';
+		
+		centity AddressableEntity 'Any entity that is addressable in some way' {
+			Identifier uniqueID [1:1]'A guaranteed unique ID for this party - this is really an implementation detail';
+			AddressableEntity uniqueID [1:1]'A guaranteed unique ID for this party - this is really an implementation detail';
+		};
+				
+		centity NaturalPerson 'Base definition of a natural person. Typical users will take only a slice of this' : AddressableEntity {
+			Biometric biometrics[1:1] 'Some biometric data. Each element will likely be implemented as a type/value pair' ;
+			
+		};
+
+		cassoc UnionMembership 'The relationship between a NaturalPerson and any Union' {
+			AddressableEntity role [1:1]'The role of this person in this union';
+			Identifier role [1:1]'The role of this person in this union';
+			
+			participants: [
+				NaturalPerson union[1:1] 'The union in the relationship' { src: [1:1]  } ;
+				NaturalPerson member[1:1] 'The person'{ src: [1:1]  } ;
+			]
+		};
+					
+	
+		 
+	} 
+
 }
