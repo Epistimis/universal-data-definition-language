@@ -5,19 +5,19 @@ dm mymodel 'Base data structures to support People, Places and Things' {
 		observable Biometric 'this is Identifier';
 		observable AddressableEntity 'this is Identifier';
 		
-		centity AddressableEntity 'Any entity that is addressable in some way' {
-			Identifier uniqueID [1:1]'A guaranteed unique ID for this party - this is really an implementation detail';
-			AddressableEntity uniqueID [1:1]'A guaranteed unique ID for this party - this is really an implementation detail';
+		centity AddressableEntityi 'Any entity that is addressable in some way' {
+			Identifier uniqueID [1:2]'A guaranteed unique ID for this party - this is really an implementation detail';
+			AddressableEntity adrss [1:1]'A guaranteed unique ID for this party - this is really an implementation detail';
 		};
 				
-		centity NaturalPerson 'Base definition of a natural person. Typical users will take only a slice of this' : AddressableEntity {
+		centity NaturalPerson 'Base definition of a natural person. Typical users will take only a slice of this' : AddressableEntityi {
 			Biometric biometrics[1:1] 'Some biometric data. Each element will likely be implemented as a type/value pair' ;
 			
 		};
-
+	 
 		cassoc UnionMembership 'The relationship between a NaturalPerson and any Union' {
 			AddressableEntity role [1:1]'The role of this person in this union';
-			Identifier role [1:1]'The role of this person in this union';
+			Identifier personrole [4:6]'The role of this person in this union';
 			
 			participants: [
 				NaturalPerson union[1:1] 'The union in the relationship' { src: [1:1]  } ;

@@ -18,12 +18,12 @@ export class UniversalDataDefinitionLanguageValidationRegistry extends Validatio
         super(services);     
         const validator = services.validation.UniversalDataDefinitionLanguageValidator;
         const checks: ValidationChecks<UniversalDataDefinitionLanguageAstType> = {
-            ConceptualEntity:[validator.checkForUniqueID, validator.checkForCyclesInSpecialization, validator.checkObservableComposedOnce, validator.checkForAtLeastOneLocalConceptualCharacteristic],//validator.checkHasUniqueID
+            ConceptualEntity:[validator.checkForUniqueID, validator.checkForCyclesInSpecialization, validator.checkObservableComposedOnce, validator.checkForAtLeastOneLocalConceptualCharacteristic, validator.checkCharacteristicsHaveUniqueRolenames],//validator.checkHasUniqueID
             ConceptualAssociation: [validator.checkForAtLeastOneLocalConceptualCharacteristic, validator.checkForAtLeastTwoParticipants],
             UddlElement: [validator.checkNameIsValidIdentifier, validator.checkNameIsReservedWord],
             DataModel: validator.checkElementHasUniqueName,
             ConceptualObservable: validator.checkIsDescriptionEmpty,
-            ConceptualCharacteristic: [validator.checkLowerBound_LTE_UpperBound, validator.checkUpperBoundValid, validator.checkLowerBoundValid]
+            ConceptualCharacteristic: [ validator.checkLowerBoundValid,  validator.checkUpperBoundValid, validator.checkLowerBound_LTE_UpperBound, validator.checkRolenameIsValidIdentifier]
         };
         this.register(checks, validator);
     }
@@ -92,7 +92,7 @@ export  class UniversalDataDefinitionLanguageValidator {
         }
     }
     isDescriptionEmpty(des: string | undefined):boolean{
-        return !(des !== undefined && des.trim().length !== 0)
+        return des === undefined && des!.trim().length !== 0
     }
 
     /**
@@ -102,7 +102,7 @@ export  class UniversalDataDefinitionLanguageValidator {
      */
     checkForAtLeastOneLocalConceptualCharacteristic(model: element.ConceptualEntity | element.ConceptualAssociation, accept: ValidationAcceptor){
         if(!this.atLeastOneLocalConceptualCharacteristic(model)){
-            accept('error', 'An ConceptualEntity has at least one ConceptualCharacteristic defined locally', {node : model, property : "composition" });
+            accept('error', 'A ConceptualEntity must have at least one ConceptualCharacteristic defined locally', {node : model, property : "composition" });
         }
     }
     atLeastOneLocalConceptualCharacteristic(model: element.ConceptualEntity | element.ConceptualAssociation): boolean{
@@ -149,21 +149,31 @@ export  class UniversalDataDefinitionLanguageValidator {
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
      * invariant characteristicsHaveUniqueRolenames
     */
-    checkCharacteristicsHaveUniqueRolenames(model: element.ConceptualEntity, accept: ValidationAcceptor){
+    checkCharacteristicsHaveUniqueRolenames(model: element.ConceptualEntity | element.ConceptualAssociation, accept: ValidationAcceptor){
         let report: Set<string> = new Set();
         if(!this.characteristicsHaveUniqueRolenames(model, report)){
             accept('error', "A ConceptualCharacteristic's rolename is unique within an ConceptualEntity", {node: model, property: "composition" });
         }
     }
-    characteristicsHaveUniqueRolenames(model: element.ConceptualEntity, report: Set<string>):boolean{
+    characteristicsHaveUniqueRolenames(model: element.ConceptualEntity | element.ConceptualAssociation, report: Set<string>):boolean{
         let result = true;
+
         model.composition.forEach(item =>{
             if(report.has(item.rolename)){
                 result = false
             }else{
                 report.add(item.rolename)
             }
-        })
+        });
+        if('participant' in model){
+            model.participant.forEach(item =>{
+                if(report.has(item.rolename)){
+                    result = false
+                }else{
+                    report.add(item.rolename)
+                }
+            });
+        }
         if(result && model.specializes?.ref){
             result = this.characteristicsHaveUniqueRolenames(model.specializes.ref, report)
         }
@@ -179,7 +189,7 @@ export  class UniversalDataDefinitionLanguageValidator {
     checkForAtLeastTwoParticipants(model: element.ConceptualAssociation , accept: ValidationAcceptor){
         const result = this.totalParticipants(model)
         if(result.length < 2){
-            accept('error', 'An ConceptualAssociation has at least two Participants', {node: model, property: "participant" });
+            accept('error', 'A ConceptualAssociation must have at least two Participants', {node: model, property: "participant" });
         }
     }
     totalParticipants(model: element.ConceptualAssociation | element.ConceptualEntity ): element.ConceptualParticipant[]{
@@ -273,11 +283,14 @@ export  class UniversalDataDefinitionLanguageValidator {
                 reportedin.add(item.name)
                 
                 item.element.forEach(elm =>{
+                    
                     if(reportedin.has(elm.name)){
                         result = false;
+                    }else{
+                        reportedin.add(elm.name)  
                     }
                 });
-                console.log('donthave',result)
+                
                 if(result && 'cdm' in item && item.cdm.length){
                     result = this.isNameUnique(item.cdm)
                 }
@@ -321,7 +334,7 @@ export  class UniversalDataDefinitionLanguageValidator {
      }
      upperBoundValid(model: element.ConceptualCharacteristic):boolean{
          if(model.upperBound){
-            return model.upperBound == -1 || model.upperBound >= 1;
+            return model.upperBound === -1 || model.upperBound >= 1;
          }
          return false;
      }
