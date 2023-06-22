@@ -14,6 +14,7 @@ export const conobservable1 = {
 export const conobservable2 = {
   $type: 'ConceptualObservable',
   name: 'obvervbc',
+  
   description: 'this is bc'
 };
 
@@ -26,6 +27,7 @@ export const conobservable3 = {
 export const conobservable4 = {
   $type: 'ConceptualObservable',
   name: 'obseref',
+ 
   description: 'this is bc'
 };
 
@@ -70,6 +72,7 @@ export const concomposition3: unknown = {
   rolename:'compocd',
   upperBound:-1,
   lowerBound:-1,
+  specializes:{ref:concomposition2},
   description:"this is bc"
 };
 
@@ -78,6 +81,7 @@ export const concomposition4: unknown = {
   rolename:'compocd',
   upperBound:2,
   lowerBound:4,
+
   description:"this is bc"
 };
 
@@ -118,7 +122,7 @@ export const concharpathnode2 = {
 };
 
 export const cparticipent1 = {
-  type:{ref:centity1},
+  type:{ref:centity3},
   rolename:'roleab',
   lowerBound:2,
   upperBound:1,
@@ -146,19 +150,19 @@ export const conparpathnode1 = {
   projectedParticipant:{ref:cparticipent1}
 };
 
-export const cassoc1:unknown = {
-  name:'entityab',
+export const cassoc1:any = {
+  name:'assoab',
   description:'',
-  composition:[concomposition1,concomposition2],
-  specializes:{ref:{centity1}},
-  participant:cparticipent1 
+  composition:[concomposition1,concomposition2,concomposition3],
+  specializes:{ref:centity2},
+  participant:[cparticipent1]
 };
 
-export const cassoc2:unknown = {
-  name:'entitybc',
+export const cassoc2:any = {
+  name:'assobc',
   description:'',
-  composition:[concomposition1],
-  specializes:{ref:{centity1}},
+  composition:[concomposition3],
+  specializes:{ref:centity3},
   participant:[cparticipent1,cparticipent2]
 };
 
@@ -166,18 +170,18 @@ export const elm= {
   cdm:[{name:'a',
         cdm:[{name:'b',
               cdm:[],
-              elms:[conbasis1,conobservable1, centity1]
+              element:[]
              }],
-        elms:[conbasis2,conobservable2, centity2]
+             element:[]
   }],
   ldm:[{name:'e',
         ldm:[{name:'e',
                ldm:[],
-               elms:[conbasis1,conobservable1, centity1]
+               element:[conbasis1,conobservable1]
               },
               {name:'e',
                ldm:[],
-               elms:[conbasis1,conobservable1, centity1]
+               element:[conbasis1,conobservable1]
               }
             ],
         elms:[conbasis2,conobservable2, centity2]
@@ -185,9 +189,9 @@ export const elm= {
   pdm:[{name:'g',
         pdm:[{name:'h',
               pdm:[],
-              elms:[conbasis1,conobservable1, centity1]
+              element:[conbasis1,conobservable1, centity1]
             }],
-        elms:[conbasis2,conobservable2, centity3]
+        element:[conbasis2,conobservable2, centity3]
   }],
 
 };

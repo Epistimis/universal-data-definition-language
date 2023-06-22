@@ -36,6 +36,10 @@ This pull request aims to add the following validation rules to the AST node of 
     Context: ConceptualEntity
     Invariant: characteristicsHaveUniqueRolenames
 
+    File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    Context: ConceptualEntity
+    Invariant: specializingConceptualCharacteristicsConsistent
+
      File: UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
     Context: ConceptualAssociation
     Invariant: hasAtLeastTwoParticipants

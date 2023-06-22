@@ -1,7 +1,7 @@
 import { ValidationAcceptor, ValidationChecks, ValidationRegistry } from 'langium';
-import * as element from './generated/ast';
-import { UniversalDataDefinitionLanguageAstType} from './generated/ast';
-import type { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
+import * as element from '../generated/ast';
+import { UniversalDataDefinitionLanguageAstType} from '../generated/ast';
+import type { UniversalDataDefinitionLanguageServices } from '../universal-data-definition-language-module';
 
 /**
 * Helper constants
@@ -18,12 +18,15 @@ export class UniversalDataDefinitionLanguageValidationRegistry extends Validatio
         super(services);     
         const validator = services.validation.UniversalDataDefinitionLanguageValidator;
         const checks: ValidationChecks<UniversalDataDefinitionLanguageAstType> = {
-            ConceptualEntity:[validator.checkForUniqueID, validator.checkForCyclesInSpecialization, validator.checkObservableComposedOnce, validator.checkForAtLeastOneLocalConceptualCharacteristic, validator.checkCharacteristicsHaveUniqueRolenames],//validator.checkHasUniqueID
+            ConceptualEntity:[validator.checkForUniqueID, validator.checkForCyclesInSpecialization, validator.checkObservableComposedOnce,
+                              validator.checkForAtLeastOneLocalConceptualCharacteristic, validator.checkCharacteristicsHaveUniqueRolenames, 
+                              validator.checkSpecializingConceptualCharacteristicsConsistent],
             ConceptualAssociation: [validator.checkForAtLeastOneLocalConceptualCharacteristic, validator.checkForAtLeastTwoParticipants],
             UddlElement: [validator.checkNameIsValidIdentifier, validator.checkNameIsReservedWord],
             DataModel: validator.checkElementHasUniqueName,
             ConceptualObservable: validator.checkIsDescriptionEmpty,
-            ConceptualCharacteristic: [ validator.checkLowerBoundValid,  validator.checkUpperBoundValid, validator.checkLowerBound_LTE_UpperBound, validator.checkRolenameIsValidIdentifier]
+            ConceptualCharacteristic: [ validator.checkLowerBoundValid,  validator.checkUpperBoundValid, validator.checkLowerBound_LTE_UpperBound, 
+                                        validator.checkRolenameIsValidIdentifier]
         };
         this.register(checks, validator);
     }
@@ -92,7 +95,7 @@ export  class UniversalDataDefinitionLanguageValidator {
         }
     }
     isDescriptionEmpty(des: string | undefined):boolean{
-        return des === undefined && des!.trim().length !== 0
+        return des === undefined || des!.trim().length === 0
     }
 
     /**
@@ -266,7 +269,7 @@ export  class UniversalDataDefinitionLanguageValidator {
     checkElementHasUniqueName(model: element.DataModel, accept: ValidationAcceptor): void{
        // let reported = new Set<string>();
        if( !this.isNameUnique(model.cdm) || !this.isNameUnique(model.ldm) || !this.isNameUnique(model.pdm) ){
-        accept('error', 'This element must must have unique name', {node: model, property: "name"});
+        accept('error', 'This element must have unique name', {node: model, property: "name"});
        }
     }
     isNameUnique(model: element.ConceptualDataModel[] | element.LogicalDataModel[] | element.PlatformDataModel[]): boolean{
@@ -276,14 +279,10 @@ export  class UniversalDataDefinitionLanguageValidator {
         model.forEach(item =>{
             if(reportedin.has(item.name)){
                 result = false;
-                console.log('have',result)
-               
-
             }else{
                 reportedin.add(item.name)
                 
-                item.element.forEach(elm =>{
-                    
+                item.element?.forEach(elm =>{ 
                     if(reportedin.has(elm.name)){
                         result = false;
                     }else{
@@ -304,7 +303,56 @@ export  class UniversalDataDefinitionLanguageValidator {
         })
         return result;
     }
-    
+
+    /** If ConceptualEntity A' specializes ConceptualEntity A, all characteristics
+    * in A' specialize nothing, specialize characteristics from A,
+    * or specialize characteristics from a ConceptualEntity that is a generalization of
+    * A. (If A' does not specialize, none of its characteristics specialize.)
+    * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    * invariant specializingConceptualCharacteristicsConsistent
+    */   
+    checkSpecializingConceptualCharacteristicsConsistent(model: element.ConceptualEntity, accept: ValidationAcceptor){
+        if(this.specializingConceptualCharacteristicsConsistent(model)){
+            accept('error', "Specializing ConceptualCharacteristics must be consistent", {node: model, property: "composition"});
+        }
+    }
+    specializingConceptualCharacteristicsConsistent(model: element.ConceptualEntity | element.ConceptualAssociation, char?: element.ConceptualCharacteristic[]):boolean{
+        let characteristics :element.ConceptualCharacteristic[]
+        let result = false
+        if(!model.specializes?.ref){
+            if('participant' in model){
+                characteristics = [...model.participant, ...model.composition]; 
+            }else{
+                characteristics = [...model.composition];
+            }
+            characteristics = characteristics.filter(elm => elm.specializes?.ref);
+            result = characteristics.length === 0;
+            
+        }else{
+            if('participant' in model){
+                characteristics = [...model.participant, ...model.composition];  
+            }else{
+                characteristics = [...model.composition];
+            }
+            characteristics = characteristics.filter(elm => elm.specializes?.ref );        
+            if(characteristics.length){
+                if(char?.length){
+                    result = char.every(c =>{
+                                return characteristics.some(sc =>{
+                                    sc.specializes?.ref === c.specializes?.ref
+                                })
+                            })   
+                }
+                if(!result){
+                   result =  this.specializingConceptualCharacteristicsConsistent(model.specializes?.ref, char)
+                }
+            }else{
+                result = true;
+            }    
+        }
+        return result    
+    }
+
     /**
      * A ConceptualCharacteristic's lowerBound is less than or equal to its upperBound, unless its upperBound is -1.
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
@@ -339,8 +387,7 @@ export  class UniversalDataDefinitionLanguageValidator {
          return false;
      }
     
-    /*
-     * A ConceptualCharacteristic's lowerBound is greater than or equal to zero.
+    /*A ConceptualCharacteristic's lowerBound is greater than or equal to zero.
      * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
      * invariant lowerBoundValid
      */
@@ -356,9 +403,9 @@ export  class UniversalDataDefinitionLanguageValidator {
          return false;
      }
 
-    /**  The rolename of a ConceptualCharacteristic is a valid identifier.
-    * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
-    * invariant rolenameIsValidIdentifier
+    /* The rolename of a ConceptualCharacteristic is a valid identifier.
+    *  UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+    *  invariant rolenameIsValidIdentifier
     */
     checkRolenameIsValidIdentifier(model: element.ConceptualCharacteristic, accept: ValidationAcceptor){
         
