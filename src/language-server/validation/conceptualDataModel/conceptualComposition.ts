@@ -1,5 +1,5 @@
 import { ValidationAcceptor } from "langium";
-import { ConceptualComposition, ConceptualEntity} from "../../generated/ast";
+import { ConceptualComposition, ConceptualEntity, isConceptualComposition} from "../../generated/ast";
 
 /**
  * If a ConceptualComposition specializes, it specializes a ConceptualComposition.
@@ -17,13 +17,13 @@ export const checkTypeConsistentWithSpecialization = (model: ConceptualCompositi
 export const typeConsistentWithSpecialization = (model: ConceptualComposition): boolean => {
     let result = false;
     if (model.specializes?.ref) {
-        if (model.specializes.ref.$type === 'ConceptualComposition') {
+        if (isConceptualComposition(model.specializes.ref)) {
             if (model.type.ref === model.specializes.ref.type.ref) {
                 result = true;
             } else {
                 // Check if A's type is a specialization of B's type
                 if ('specializes' in model.type.ref! && 'specializes' in model.specializes.ref.type.ref!) {
-                    result = isSpecializationOf(model.specializes?.ref.type.ref!, model.type.ref!);
+                    result = isSpecializationOf(model.specializes?.ref.type.ref, model.type.ref);
                 }
             }
         }
@@ -33,10 +33,12 @@ export const typeConsistentWithSpecialization = (model: ConceptualComposition): 
 
 export const isSpecializationOf = (spec: ConceptualEntity, model: ConceptualEntity): boolean => {
     let result = false;
-    if (spec.specializes?.ref?.name === model.name) {
-        result = true;
-    } else {
-        result = isSpecializationOf(spec.specializes?.ref!, model);
+   
+    if (spec.specializes?.ref) {
+        result = spec.specializes?.ref?.name === model.name
+        if(!result){
+            result = isSpecializationOf(spec.specializes?.ref, model);
+        }
     }
     return result;
 }

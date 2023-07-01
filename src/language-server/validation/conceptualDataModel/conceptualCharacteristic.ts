@@ -13,8 +13,8 @@ export const checkLowerBound_LTE_UpperBound = (model: ConceptualCharacteristic, 
     }
 }
 
-export const lowerBound_LTE_UpperBound = (model: ConceptualCharacteristic): boolean => {    
-    return model.lowerBound! <= model.upperBound!;  
+export const lowerBound_LTE_UpperBound = (model: ConceptualCharacteristic): boolean => {   
+    return model.upperBound !== -1 ? model.lowerBound! <= model.upperBound! : lowerBoundValid(model);  
 }
 
 /**

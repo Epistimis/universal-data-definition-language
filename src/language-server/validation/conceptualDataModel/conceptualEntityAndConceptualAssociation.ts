@@ -168,7 +168,7 @@
         }
     };
       
-    export const specializingConceptualCharacteristicsConsistent = (model: ConceptualEntity | ConceptualAssociation, char?: ConceptualCharacteristic[]): boolean => {
+    export const specializingConceptualCharacteristicsConsistent = (model: ConceptualEntity | ConceptualAssociation, conchar?: ConceptualCharacteristic[]): boolean => {
         let characteristics = getAllLocalCharacteristics(model);
         characteristics = characteristics.filter(elm => elm.specializes?.ref);
         let result = false;
@@ -177,15 +177,19 @@
           result = characteristics.length === 0;
         } else {
           if (characteristics.length > 0) {
-            //if called with array of characteristics in recursive call
-            if (char?.length) {
-              //check if all characteristics specialize
-              result = char.every(c =>
-                characteristics.some(sc => sc.specializes?.ref === c.specializes?.ref)
-              );
-            }
-            if (!result) {
-              result = specializingConceptualCharacteristicsConsistent(model.specializes?.ref, char);
+            //conchar is just the array of allLocalCharacteristics that will be sent to recursive call to check for common specializations in all local characteristics in specialization cycle.
+            if (conchar?.length) {
+              //check if all characteristics of A' specialize nothing from A
+                result = conchar.every(c =>
+                    characteristics.every(sc => sc.specializes?.ref !== c.specializes?.ref)
+                );
+                //if true pass all characteristics to next specialization cycle
+                if (result) {
+                   result = specializingConceptualCharacteristicsConsistent(model.specializes?.ref, characteristics);
+                }
+                return result;
+            }else{
+                result = specializingConceptualCharacteristicsConsistent(model.specializes?.ref, characteristics);
             }
           } else {
             result = true;
