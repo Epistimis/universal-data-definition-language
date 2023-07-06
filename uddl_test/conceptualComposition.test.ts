@@ -10,5 +10,4 @@ describe('conceptualComposition', () => {
     test("A conceptualComposition's type is not consistent with specialization", () => {
       expect(typeConsistentWithSpecialization(concomposition2 as ConceptualComposition)).toBeFalsy();
     });
-  });
-  
+    });
