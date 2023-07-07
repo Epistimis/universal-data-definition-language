@@ -50,8 +50,7 @@ export const getRolename = (model: ConceptualParticipant | ConceptualCharacteris
 }
 
 /*
-* Helper method that determines if a ConceptualParticipant's
-* path sequence contains a cycle.
+* Helper method that determines if a ConceptualParticipant's path sequence contains a cycle.
 */
 export const hasCycleInPath = (model: ConceptualParticipant)=>{
     let path = getPathSequence(model);
@@ -62,8 +61,7 @@ export const hasCycleInPath = (model: ConceptualParticipant)=>{
 }
 
 /*
-* Helper method that gets the element projected by a ConceptualParticipant.
-* Returns a ConceptualComposableElement.
+* Helper method that gets the element projected by a ConceptualParticipant. Returns a ConceptualComposableElement.
 */
 export const getResolvedType = (model: ConceptualParticipant, dataModel : DataModel) =>{
     if(model.path){
@@ -125,6 +123,24 @@ export const checkRollnameDefined = (model: ConceptualParticipant, accept: Valid
         accept('error', "ConceptualParticipant's rolename must be defined", { node: model, property: "rolename" });
     }
 }
+
+/*
+* If a ConceptualParticipant has a path sequence, the first ConceptualPathNode in the sequence
+* is resolvable from the type of the ConceptualParticipant.
+* UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
+* Invariant pathNodeResolvable
+*/
+export const ckeckPathNodeResolvable = (model: ConceptualParticipant, accept: ValidationAcceptor) =>{
+    if(!ispathNodeResolvable(model)){
+        accept('error', "Path node should be resolvable", { node: model, property: "path" });
+    }
+}
+export const ispathNodeResolvable = (model: ConceptualParticipant) =>{
+   if(model.path){
+       return isResolvableFromConceptualEntity(model.type.ref, model.path);
+   }
+}
+
 
 /*
 * If a ConceptualParticipant specializes, its multiplicity is at least as restrictive as the ConceptualParticipant it specializes.
