@@ -1,5 +1,37 @@
     import { ValidationAcceptor } from "langium";
     import { ConceptualEntity , ConceptualAssociation, ConceptualCharacteristic, ConceptualParticipant} from "../../generated/ast";
+
+    /*
+     * Helper method that gets the ConceptualCharacteristics contained in a ConceptualEntity.
+     */
+    const getAllLocalCharacteristics = (model: ConceptualEntity | ConceptualAssociation): ConceptualCharacteristic[] => {
+        if('participant' in model){
+            return [...model.participant, ...model.composition]
+        }else{
+            return [...model.composition]
+        } 
+    }
+
+    /*
+     * Helper method that gets the ConceptualCharacteristics of a ConceptualEntity, including those from specialized Entities.
+     */
+    export const getAllCharacteristics = (entity: ConceptualEntity) =>{
+        let allchar = new Set<ConceptualCharacteristic>();
+        return Array.from(charTroughSpec(entity, allchar));
+    }
+
+    const charTroughSpec = (entity: ConceptualEntity, specchar: Set<ConceptualCharacteristic>) =>{
+
+        let char = getAllLocalCharacteristics(entity);
+        char.forEach(item =>{
+            specchar.add(item);
+        })
+        if(entity.specializes?.ref){
+            charTroughSpec(entity.specializes?.ref, specchar)
+        }
+        return specchar;
+    }
+    
     
     /**
      * A ConceptualEntity has at least one locally defined ConceptualCharacteristic (not inherited through generalization).
@@ -14,15 +46,7 @@
     export const atLeastOneLocalConceptualCharacteristic = (model: ConceptualEntity | ConceptualAssociation): boolean => {
         return getAllLocalCharacteristics(model).length >= 1;
     }
-    const getAllLocalCharacteristics = (model: ConceptualEntity | ConceptualAssociation) => {
-        let characteristics
-        if('participant' in model){
-            characteristics = [...model.participant, ...model.composition]
-        }else{
-            characteristics = [...model.composition]
-        }
-        return characteristics
-    }
+
 
     /**
      * A ConceptualEntity is not a specialization of itself..
