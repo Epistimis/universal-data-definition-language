@@ -97,7 +97,7 @@ export const projectsAcrossCollection = (model: ConceptualPathNode)=>{
 * lower bounds not equal to 1, then it is the end of a ConceptualPathNode sequence.
 * If a ConceptualParticipantPathNode projects a ConceptualParticipant with source lower or
 * upper bounds not equal to 1, then it is the end of a ConceptualPathNode sequence.
-*
+* UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant noProjectionAcrossCollection
 */
 export const checkNoProjectionAcrossCollection = (model: ConceptualPathNode, accept: ValidationAcceptor) =>{
@@ -114,7 +114,7 @@ const noProjectionAcrossCollection = (model: ConceptualPathNode) =>{
 /*
 * If a ConceptualPathNode "A" is not the last in a path sequence, the next ConceptualPathNode
 * in the sequence is resolvable from the "node type" of A.
-* 
+* UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant pathNodeResolvable
 */
 export const checkPathNodeResolvable = (model: ConceptualPathNode,datamodel: DataModel, accept: ValidationAcceptor) =>{
