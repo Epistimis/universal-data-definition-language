@@ -1,5 +1,6 @@
     import { ValidationAcceptor } from "langium";
-    import { ConceptualEntity , ConceptualAssociation, ConceptualCharacteristic, ConceptualParticipant} from "../../generated/ast";
+    import { ConceptualEntity , ConceptualAssociation, ConceptualCharacteristic, ConceptualParticipant, ConceptualBasisEntity, DataModel, isConceptualEntity} from "../../generated/ast";
+import { getIdentityContribution } from "./conceptualCharacteristic";
 
     /*
      * Helper method that gets the ConceptualCharacteristics contained in a ConceptualEntity.
@@ -17,20 +18,91 @@
      */
     export const getAllCharacteristics = (entity: ConceptualEntity) =>{
         let allchar = new Set<ConceptualCharacteristic>();
-        return Array.from(charTroughSpec(entity, allchar));
+        return Array.from(allCharacteristics(entity, allchar));
     }
 
-    const charTroughSpec = (entity: ConceptualEntity, specchar: Set<ConceptualCharacteristic>) =>{
+    const allCharacteristics = (entity: ConceptualEntity, specchar: Set<ConceptualCharacteristic>) =>{
 
         let char = getAllLocalCharacteristics(entity);
         char.forEach(item =>{
             specchar.add(item);
         })
         if(entity.specializes?.ref){
-            charTroughSpec(entity.specializes?.ref, specchar)
+            allCharacteristics(entity.specializes?.ref, specchar)
         }
         return specchar;
     }
+
+    /*
+     * Helper method that gets the identity of a conceptual ConceptualEntity.
+     */
+    export const getEntityIdentity = (model: ConceptualEntity) =>{
+        let indentity 
+        let allchar = getAllCharacteristics(model);
+        allchar.map(chart =>{
+           indentity.push(getIdentityContribution(chart))
+        })
+        const allbasis = getBasisEntities(model);
+    }
+  
+    /*
+    * Helper method to retrieve the BasisEntities of a ConceptualEntity,
+    * including those from specialized Entities.
+    */
+    export const getBasisEntities = (model: ConceptualEntity) =>{
+        let basisen = new Set<ConceptualBasisEntity>();
+        return Array.from(getallbasis(model, basisen));
+    }
+
+    const getallbasis = (model: ConceptualEntity, allbasis : Set<ConceptualBasisEntity>) =>{
+        model.basisEntity.forEach(item => {
+            if(item.ref){
+               allbasis.add(item.ref)
+            }
+        })
+        if(model.specializes?.ref){
+            getallbasis(model.specializes.ref, allbasis)
+        }
+        return allbasis;
+    }
+  
+    /*
+     * An Entity is unique in a Conceptual Data Model. (An Entity is unique if the set of its Characteristics
+     * is different from other Entities' in terms of type, lowerBound, upperBound, and path (for Participants).
+     * NOTE: If an Entity is part of a specialization cycle, its uniqueness is undefined. So, if an Entity is part of a specialization cycle,
+     * it will not fail entityIsUnique, but will fail noCyclesInSpecialization.
+     * 
+     * Invariant entityIsUnique
+     */
+
+    //   not self.isPartOfSpecializationCycle() implies
+    //   not ConceptualEntity.allInstances()
+    //             ->excluding(self)
+    //             ->collectNested(getEntityIdentity())
+    //             ->includes(self.getEntityIdentity())
+    // export const checkEntityIsUnique = (model: ConceptualEntity,datamodel: DataModel, accept: ValidationAcceptor) =>{
+    //     if(isEntityIsUnique(model, datamodel)){
+    //         accept('error', 'An entity must be unique', {node: model, property: "composition" });
+    //     }
+    // }
+    // export const isEntityIsUnique = (model: ConceptualEntity, datamodel: DataModel): boolean=>{
+    //     let centityspec: Set<string> = new Set();
+    //     let allentity:any = []
+    //      if(!cyclesInSpecialization(model, centityspec)){
+    //         datamodel.cdm.forEach(item => {
+    //             item.element.forEach(item =>{
+    //                 if(isConceptualEntity(item) && item.name !== model.name){
+    //                   allentity.push(getEntityIdentity(item));
+    //                 }
+    //             });
+    //         });
+    //         let modelidentity = getEntityIdentity(model);
+
+    //         allentity.forEach(item =>{
+                
+    //         })
+    //      }
+    // }
     
     
     /**

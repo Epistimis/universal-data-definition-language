@@ -25,7 +25,7 @@ export const getNodeType = (model: ConceptualPathNode, datamodel: DataModel) : C
      if(isConceptualCharacteristicPathNode(model)){
         result = getType(model.projectedCharacteristic.ref!, datamodel);
      }else if(isConceptualParticipantPathNode(model)){
-         let conassoc = getcsos(datamodel);
+         let conassoc = getAllConceptualAssociation(datamodel);
          conassoc = conassoc.filter( assoc =>{
             assoc.participant.includes(model.projectedParticipant.ref!)
          })
@@ -34,7 +34,7 @@ export const getNodeType = (model: ConceptualPathNode, datamodel: DataModel) : C
      return result!; 
 }
 //get all instances of conceptual association
-const getcsos = ( model: DataModel)=>{
+const getAllConceptualAssociation = ( model: DataModel)=>{
    let allconassoc: ConceptualAssociation[] = []
    model.cdm.forEach(mod =>{
       mod.element.forEach(elm =>{
