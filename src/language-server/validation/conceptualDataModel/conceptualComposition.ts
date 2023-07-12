@@ -1,6 +1,15 @@
 import { ValidationAcceptor } from "langium";
 import { ConceptualComposition, ConceptualEntity, isConceptualComposition} from "../../generated/ast";
 
+/* 
+* Helper method that gets the contribution a ConceptualComposition makes to a ConceptualEntity's uniqueness (type and multiplicity).
+*/ 
+export const getIdentityContributionOfComposition = (model: ConceptualComposition) =>{
+     return {type: model.type.ref,
+             lowerBound: model.lowerBound,
+            upperBound: model.upperBound}
+}
+
 /**
  * If a ConceptualComposition specializes, it specializes a ConceptualComposition.
  * If ConceptualComposition "A" specializes ConceptualComposition "B",
