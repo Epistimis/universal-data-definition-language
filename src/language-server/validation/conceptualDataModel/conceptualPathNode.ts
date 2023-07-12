@@ -7,11 +7,11 @@ import { getAllCharacteristics } from "./conceptualEntityAndConceptualAssociatio
 /*
 * Helper method that gets the ConceptualCharacteristic projected by a ConceptualPathNode.
 */
-export const getProjectedCharacteristic = (model: ConceptualPathNode) =>{
-    if(isConceptualCharacteristicPathNode(model)){
-       return model.projectedCharacteristic.ref;
-    }else if(isConceptualParticipantPathNode(model)){
-       return model.projectedParticipant.ref;
+export const getProjectedCharacteristic = (path: ConceptualPathNode) =>{
+    if(isConceptualCharacteristicPathNode(path)){
+       return path.projectedCharacteristic.ref;
+    }else if(isConceptualParticipantPathNode(path)){
+       return path.projectedParticipant.ref;
     }
 }
 
@@ -20,14 +20,14 @@ export const getProjectedCharacteristic = (model: ConceptualPathNode) =>{
 * characteristic. For a ConceptualParticipantPathNode, the node type is the ConceptualAssociation containing the projected ConceptualParticipant.
 * Returns a ConceptualComposableElement.
 */
-export const getNodeType = (model: ConceptualPathNode, datamodel: DataModel) : ConceptualComposableElement=>{
+export const getNodeType = (path: ConceptualPathNode, datamodel: DataModel) : ConceptualComposableElement=>{
    let result
-     if(isConceptualCharacteristicPathNode(model)){
-        result = getType(model.projectedCharacteristic.ref!, datamodel);
-     }else if(isConceptualParticipantPathNode(model)){
+     if(isConceptualCharacteristicPathNode(path)){
+        result = getType(path.projectedCharacteristic.ref!, datamodel);
+     }else if(isConceptualParticipantPathNode(path)){
          let conassoc = getAllConceptualAssociation(datamodel);
          conassoc = conassoc.filter( assoc =>{
-            assoc.participant.includes(model.projectedParticipant.ref!)
+            assoc.participant.includes(path.projectedParticipant.ref!)
          })
          result = conassoc[0]
      } 
@@ -36,8 +36,8 @@ export const getNodeType = (model: ConceptualPathNode, datamodel: DataModel) : C
 //get all instances of conceptual association
 const getAllConceptualAssociation = ( model: DataModel)=>{
    let allconassoc: ConceptualAssociation[] = []
-   model.cdm.forEach(mod =>{
-      mod.element.forEach(elm =>{
+   model.cdm.forEach(cdm =>{
+      cdm.element.forEach(elm =>{
          if(isConceptualAssociation(elm)){
             allconassoc.push(elm)
          }
@@ -50,43 +50,44 @@ const getAllConceptualAssociation = ( model: DataModel)=>{
 /*
 * Helper method that determines if a ConceptualPathNode projects a ConceptualParticipant.
 */  
-export const projectsParticipant = (model: ConceptualPathNode):boolean =>{
-   return isConceptualCharacteristicPathNode(model) && isConceptualParticipant(model.projectedCharacteristic);     
+export const projectsParticipant = (path: ConceptualPathNode):boolean =>{
+   return isConceptualCharacteristicPathNode(path) && isConceptualParticipant(path.projectedCharacteristic);     
 }
           
 /*
 * Helper method that gets the ConceptualParticipant projected by a ConceptualPathNode. Returns null if no ConceptualParticipant is projected.
 */  
-export const projectedParticipant = (model: ConceptualPathNode) =>{
-     return isConceptualCharacteristicPathNode(model) && isConceptualParticipant(model.projectedCharacteristic) ?
-            model.projectedCharacteristic : null;
+export const projectedParticipant = (path: ConceptualPathNode) =>{
+     return isConceptualCharacteristicPathNode(path) && isConceptualParticipant(path.projectedCharacteristic) ?
+            path.projectedCharacteristic : null;
 }
       
 /*
 * Helper method that determines if a ConceptualPathNode is resolvable from a given ConceptualEntity.
 */
-export const isResolvableFromConceptualEntity = (entity: ConceptualEntity, model: ConceptualPathNode)=>{
+export const isResolvableFromConceptualEntity = (entity: ConceptualEntity, path: ConceptualPathNode)=>{
    let allchar = getAllCharacteristics(entity)
-   if(isConceptualCharacteristicPathNode(model)){
+   if(isConceptualCharacteristicPathNode(path)){
       return allchar.find(item =>{
-                      return model.projectedCharacteristic.ref?.rolename === item.rolename
+                      return path.projectedCharacteristic.ref?.rolename === item.rolename
                      });
     }else{
-      return model.projectedParticipant.ref?.type.ref?.name === entity.name  
+      return path.projectedParticipant.ref?.type.ref?.name === entity.name  
     }
 }
 
+// TODO: find out the reason for inconsistency in the comment vs. the code.
 /*
 * Helper method that determines if the resolved characteristic has a multiplicity with upper bound greater than 1.
 */
-export const projectsAcrossCollection = (model: ConceptualPathNode)=>{
-    if(isConceptualCharacteristicPathNode(model)){
-      let projectedchar = model.projectedCharacteristic.ref;
+export const projectsAcrossCollection = (path: ConceptualPathNode)=>{
+    if(isConceptualCharacteristicPathNode(path)){
+      let projectedchar = path.projectedCharacteristic.ref;
       if(isConceptualCharacteristic(projectedchar) && projectedchar.upperBound && projectedchar.lowerBound) 
          return projectedchar.upperBound !== 1 || projectedchar.lowerBound !== 1
        
     }else{
-      let projectedpar = model.projectedParticipant.ref;
+      let projectedpar = path.projectedParticipant.ref;
       if(projectedpar?.sourceUpperBound && projectedpar.rolename) 
          return projectedpar?.sourceUpperBound !== 1 || projectedpar.sourceLowerBound !== 1
     }
@@ -100,14 +101,14 @@ export const projectsAcrossCollection = (model: ConceptualPathNode)=>{
 * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant noProjectionAcrossCollection
 */
-export const checkNoProjectionAcrossCollection = (model: ConceptualPathNode, accept: ValidationAcceptor) =>{
-   if(noProjectionAcrossCollection(model)){
-      accept('error', "No Projection Across Collection ", { node: model, property:"node" });
+export const checkNoProjectionAcrossCollection = (path: ConceptualPathNode, accept: ValidationAcceptor) =>{
+   if(noProjectionAcrossCollection(path)){
+      accept('error', "No Projection Across Collection ", { node: path, property:"node" });
    }
 }
-const noProjectionAcrossCollection = (model: ConceptualPathNode) =>{
-   if(projectsAcrossCollection(model)){
-       return model.node === null
+const noProjectionAcrossCollection = (path: ConceptualPathNode) =>{
+   if(projectsAcrossCollection(path)){
+       return path.node === null
    }
 }
 
@@ -117,17 +118,17 @@ const noProjectionAcrossCollection = (model: ConceptualPathNode) =>{
 * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant pathNodeResolvable
 */
-export const checkPathNodeResolvable = (model: ConceptualPathNode,datamodel: DataModel, accept: ValidationAcceptor) =>{
-   if(pathNodeResolvable(model, datamodel)){
-      accept('error', "Path Node should be Resolvable", { node: model, property:"node" });
+export const checkPathNodeResolvable = (path: ConceptualPathNode, datamodel: DataModel, accept: ValidationAcceptor) =>{
+   if(pathNodeResolvable(path, datamodel)){
+      accept('error', "Path Node should be Resolvable", { node: path, property:"node" });
    }
 }
 
-const pathNodeResolvable = (model: ConceptualPathNode, datamodel: DataModel) =>{
-   if(model.node){
-      let nodetype = getNodeType(model, datamodel)
+const pathNodeResolvable = (path: ConceptualPathNode, datamodel: DataModel) =>{
+   if(path.node){
+      let nodetype = getNodeType(path, datamodel)
       if(nodetype){
-         return isConceptualEntity(nodetype) && isResolvableFromConceptualEntity(nodetype, model.node)
+         return isConceptualEntity(nodetype) && isResolvableFromConceptualEntity(nodetype, path.node)
       }else{
          return false;
       }
