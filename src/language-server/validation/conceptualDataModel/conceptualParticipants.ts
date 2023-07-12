@@ -1,5 +1,5 @@
 import { ValidationAcceptor } from "langium";
-import { ConceptualCharacteristic, ConceptualParticipant, ConceptualPathNode, DataModel, isConceptualCharacteristicPathNode, isConceptualEntity, isConceptualParticipant, isConceptualPathNode} from "../../generated/ast";
+import { ConceptualCharacteristic, ConceptualComposableElement, ConceptualParticipant, ConceptualPathNode, DataModel, isConceptualCharacteristicPathNode, isConceptualComposableElement, isConceptualEntity, isConceptualParticipant, isConceptualPathNode} from "../../generated/ast";
 import { getProjectedCharacteristic } from "./conceptualPathNode";
 import { getNodeType } from "./conceptualPathNode";
 import { isSpecializationOf } from "./conceptualComposition";
@@ -7,7 +7,7 @@ import { getType } from "./conceptualCharacteristic";
 /**
  * Helper method that gets a ConceptualParticipant's ConceptualPathNode sequence.
  */
-export const getPathSequence = (model: ConceptualParticipant)=> {
+export const getPathSequence = (model: ConceptualParticipant): ConceptualPathNode[] =>{
     const pathSequence = new Set<ConceptualPathNode>();
     if(model.path){
         traverse(model.path, pathSequence);
@@ -34,25 +34,22 @@ export const traverse = (model: ConceptualPathNode, sequence : Set<ConceptualPat
 * Helper method that gets the rolename of a ConceptualParticipant.(A ConceptualParticipant's rolename is either projected from a
 * characteristic or defined directly on the ConceptualParticipant.)
 */
-export const getRolename = (model: ConceptualParticipant | ConceptualCharacteristic):boolean=>{
-    let result = false;
+export const getRolename = (model: ConceptualParticipant | ConceptualCharacteristic): string | undefined => {
     if(model.rolename){
-        result = true;
-        return result;
+        return model.rolename;
     }else if(isConceptualParticipant(model) && model.path){
         let conceptualpathnode = getPathSequence(model);
         let cpn = conceptualpathnode[conceptualpathnode.length - 1];
         if(isConceptualCharacteristicPathNode(cpn) && cpn.projectedCharacteristic?.ref){
-        result = getRolename(cpn.projectedCharacteristic?.ref);
+            return getRolename(cpn.projectedCharacteristic?.ref);
         }
     }
-    return result;
 }
 
 /*
 * Helper method that determines if a ConceptualParticipant's path sequence contains a cycle.
 */
-export const hasCycleInPath = (model: ConceptualParticipant)=>{
+export const hasCycleInPath = (model: ConceptualParticipant): boolean => {
     let path = getPathSequence(model);
     let projectedchar = path.map(item =>{
         return getProjectedCharacteristic(item);
@@ -63,15 +60,19 @@ export const hasCycleInPath = (model: ConceptualParticipant)=>{
 /*
 * Helper method that gets the element projected by a ConceptualParticipant. Returns a ConceptualComposableElement.
 */
-export const getResolvedType = (model: ConceptualParticipant, dataModel : DataModel) =>{
+export const getResolvedType = (model: ConceptualParticipant, dataModel : DataModel): ConceptualComposableElement => {
+    let result 
     if(model.path){
         if(!hasCycleInPath(model)){
             const path = getPathSequence(model);
             const lastitem = path[path.length - 1];
-            return getNodeType(lastitem, dataModel)
+            result = getNodeType(lastitem, dataModel)
         }
+    }else{
+        if(isConceptualComposableElement(model.type.ref))
+           result = model.type.ref 
     }
-    return model.type.ref;
+    return result;
 }
 
 /*
@@ -79,17 +80,15 @@ export const getResolvedType = (model: ConceptualParticipant, dataModel : DataMo
 * (A ConceptualPathNode sequence "A" is "equal" a sequence "B" if the projected element of each ConceptualPathNode in A is the same
 * projected element of the corresponding ConceptualPathNode in B.)
 */
-export const pathIsEqualTo = (specparticipant: ConceptualParticipant, participant: ConceptualParticipant):boolean => {
+export const pathIsEqualTo = (specparticipant: ConceptualParticipant, participant: ConceptualParticipant): boolean => {
     let patseq = getPathSequence(participant);
     let specpathseq = getPathSequence(specparticipant);
     return  patseq.length === specpathseq.length &&
-            patseq.every(pathnode => {
-                return  specpathseq.every(specpathnode =>{
+            patseq.every((pathnode, index) => {
                            let prochar = getProjectedCharacteristic(pathnode);
-                           let specprochar = getProjectedCharacteristic(specpathnode);
+                           let specprochar = getProjectedCharacteristic(specpathseq[index]);
                            return prochar === specprochar;
-                        })
-            })
+            });
 }
 
 /*
@@ -97,20 +96,18 @@ export const pathIsEqualTo = (specparticipant: ConceptualParticipant, participan
 * (A ConceptualPathNode sequence "A" "specializes" a sequence "B" if the projected element of each ConceptualPathNode in A specializes the
 * projected element of the corresponding ConceptualPathNode in B.)
 */
-export const pathIsSpecializationOf = (specparticipant: ConceptualParticipant, participant: ConceptualParticipant):boolean => {
+export const pathIsSpecializationOf = (specparticipant: ConceptualParticipant, participant: ConceptualParticipant): boolean => {
     let patseq = getPathSequence(participant);
     let specpathseq = getPathSequence(specparticipant);
 
     return  patseq.length > 0 && patseq.length === specpathseq.length &&
-            patseq.every(pathnode => {
-                return  specpathseq.every(specpathnode =>{
+            patseq.every((pathnode, index) => {
                     let prochar = getProjectedCharacteristic(pathnode);
-                    let specprochar = getProjectedCharacteristic(specpathnode);
+                    let specprochar = getProjectedCharacteristic(specpathseq[index]);
                     if(isConceptualEntity(specprochar?.type.ref!) && isConceptualEntity(prochar?.type.ref)){
                        return isSpecializationOf(specprochar?.type.ref!, prochar?.type.ref!)
-                    }  
-                })
-    })
+                    }
+            });
 }
 
 /*
@@ -118,7 +115,7 @@ export const pathIsSpecializationOf = (specparticipant: ConceptualParticipant, p
 * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant rolenameDefined
 */
-export const checkRollnameDefined = (model: ConceptualParticipant, accept: ValidationAcceptor)=>{
+export const checkRolenameDefined = (model: ConceptualParticipant, accept: ValidationAcceptor)=>{
     if(getRolename(model)){
         accept('error', "ConceptualParticipant's rolename must be defined", { node: model, property: "rolename" });
     }
@@ -130,12 +127,12 @@ export const checkRollnameDefined = (model: ConceptualParticipant, accept: Valid
 * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant pathNodeResolvable
 */
-export const ckeckPathNodeResolvable = (model: ConceptualParticipant, accept: ValidationAcceptor) =>{
-    if(!ispathNodeResolvable(model)){
+export const ckeckPathNodeResolvable = (model: ConceptualParticipant, accept: ValidationAcceptor) => {
+    if(!isPathNodeResolvable(model)){
         accept('error', "Path node should be resolvable", { node: model, property: "path" });
     }
 }
-export const ispathNodeResolvable = (model: ConceptualParticipant) =>{
+export const isPathNodeResolvable = (model: ConceptualParticipant): boolean | undefined=>{
    if(model.path){
        return isResolvableFromConceptualEntity(model.type.ref, model.path);
    }
@@ -152,7 +149,7 @@ export const checkMultiplicityConsistentWithSpecialization = (model: ConceptualP
         accept('error', "multiplicity must be consistent with specialization", { node: model, property: "specializes" });
     }
 }
-export const isMultiplicityConsistentWithSpecialization = (model: ConceptualParticipant):boolean =>{
+export const isMultiplicityConsistentWithSpecialization = (model: ConceptualParticipant): boolean => {
     let result = false;
     if(model.specializes?.ref && isConceptualParticipant(model)){
         if(model.lowerBound && model.upperBound && model.specializes.ref.lowerBound && model.specializes.ref.upperBound){
