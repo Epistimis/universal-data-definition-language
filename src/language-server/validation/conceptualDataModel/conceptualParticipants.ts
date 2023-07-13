@@ -1,7 +1,6 @@
 import { ValidationAcceptor } from "langium";
 import { ConceptualCharacteristic, ConceptualComposableElement, ConceptualParticipant, ConceptualPathNode, DataModel, isConceptualCharacteristicPathNode, isConceptualComposableElement, isConceptualEntity, isConceptualParticipant, isConceptualPathNode} from "../../generated/ast";
-import { getProjectedCharacteristic } from "./conceptualPathNode";
-import { getNodeType } from "./conceptualPathNode";
+import { getNodeType, getProjectedCharacteristic } from "./conceptualPathNode";
 import { isSpecializationOf } from "./conceptualComposition";
 import { getType } from "./conceptualCharacteristic";
 /**
@@ -72,7 +71,7 @@ export const getResolvedType = (model: ConceptualParticipant, dataModel : DataMo
         if(isConceptualComposableElement(model.type.ref))
            result = model.type.ref 
     }
-    return result;
+    return result as ConceptualComposableElement;
 }
 
 /*
