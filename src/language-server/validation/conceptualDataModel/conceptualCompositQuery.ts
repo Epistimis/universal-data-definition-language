@@ -34,15 +34,15 @@ export const CheckNoCyclesInConstruction = (view: ConceptualCompositeQuery, acce
     } 
 }
 const getAllCompositeQuery = (view: ConceptualCompositeQuery ): string[]=>{
-    let compositequery = new Array<string>();
+    let compositeQueries = new Array<string>();
     view.composition.forEach(item =>{
         if(isConceptualCompositeQuery(item.type.ref)){
-           compositequery.push(item.type.ref.name);
+           compositaeQueries.push(item.type.ref.name);
            let compositequerythrougtype = getAllCompositeQuery(item.type.ref)
-           compositequery.push(...compositequerythrougtype)
+           compositeQueries.push(...compositequerythrougtype)
         }
     })
-   return compositequery;  
+   return compositeQueries;
 }
     
 /*
