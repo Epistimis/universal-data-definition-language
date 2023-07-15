@@ -1,5 +1,5 @@
 import { ValidationAcceptor } from "langium";
-import {  ConceptualAssociation, ConceptualComposableElement, ConceptualEntity, ConceptualPathNode, DataModel, isConceptualAssociation, isConceptualCharacteristic, isConceptualCharacteristicPathNode, isConceptualEntity, isConceptualParticipant, isConceptualParticipantPathNode } from "../../generated/ast";
+import {  ConceptualAssociation, ConceptualCharacteristic, ConceptualComposableElement, ConceptualEntity, ConceptualParticipant, ConceptualPathNode, DataModel, isConceptualAssociation, isConceptualCharacteristic, isConceptualCharacteristicPathNode, isConceptualEntity, isConceptualParticipant, isConceptualParticipantPathNode } from "../../generated/ast";
 import { getType } from "./conceptualCharacteristic";
 import { getAllCharacteristics } from "./conceptualEntityAndConceptualAssociation";
 
@@ -7,12 +7,14 @@ import { getAllCharacteristics } from "./conceptualEntityAndConceptualAssociatio
 /*
 * Helper method that gets the ConceptualCharacteristic projected by a ConceptualPathNode.
 */
-export const getProjectedCharacteristic = (path: ConceptualPathNode) =>{
+export const getProjectedCharacteristic = (path: ConceptualPathNode): ConceptualCharacteristic | ConceptualParticipant=>{
+   let result;
     if(isConceptualCharacteristicPathNode(path)){
-       return path.projectedCharacteristic.ref;
+       result = path.projectedCharacteristic.ref;
     }else if(isConceptualParticipantPathNode(path)){
-       return path.projectedParticipant.ref;
+       result = path.projectedParticipant.ref;
     }
+    return result!;
 }
 
 /*
@@ -57,7 +59,7 @@ export const projectsParticipant = (path: ConceptualPathNode):boolean =>{
 /*
 * Helper method that gets the ConceptualParticipant projected by a ConceptualPathNode. Returns null if no ConceptualParticipant is projected.
 */  
-export const projectedParticipant = (path: ConceptualPathNode) =>{
+export const projectedParticipant = (path: ConceptualPathNode): ConceptualParticipant | null =>{
      return isConceptualCharacteristicPathNode(path) && isConceptualParticipant(path.projectedCharacteristic) ?
             path.projectedCharacteristic : null;
 }
@@ -65,10 +67,10 @@ export const projectedParticipant = (path: ConceptualPathNode) =>{
 /*
 * Helper method that determines if a ConceptualPathNode is resolvable from a given ConceptualEntity.
 */
-export const isResolvableFromConceptualEntity = (entity: ConceptualEntity, path: ConceptualPathNode)=>{
+export const isResolvableFromConceptualEntity = (entity: ConceptualEntity, path: ConceptualPathNode): boolean=>{
    let allchar = getAllCharacteristics(entity)
    if(isConceptualCharacteristicPathNode(path)){
-      return allchar.find(item =>{
+      return allchar.every(item =>{
                       return path.projectedCharacteristic.ref?.rolename === item.rolename
                      });
     }else{
@@ -80,17 +82,19 @@ export const isResolvableFromConceptualEntity = (entity: ConceptualEntity, path:
 /*
 * Helper method that determines if the resolved characteristic has a multiplicity with upper bound greater than 1.
 */
-export const projectsAcrossCollection = (path: ConceptualPathNode)=>{
+export const projectsAcrossCollection = (path: ConceptualPathNode) : boolean =>{
+   let result = false;
     if(isConceptualCharacteristicPathNode(path)){
       let projectedchar = path.projectedCharacteristic.ref;
       if(isConceptualCharacteristic(projectedchar) && projectedchar.upperBound && projectedchar.lowerBound) 
-         return projectedchar.upperBound !== 1 || projectedchar.lowerBound !== 1
+         result = projectedchar.upperBound !== 1 || projectedchar.lowerBound !== 1
        
     }else{
       let projectedpar = path.projectedParticipant.ref;
       if(projectedpar?.sourceUpperBound && projectedpar.rolename) 
-         return projectedpar?.sourceUpperBound !== 1 || projectedpar.sourceLowerBound !== 1
+         result = projectedpar?.sourceUpperBound !== 1 || projectedpar.sourceLowerBound !== 1
     }
+    return result;
 }
 
 /*
@@ -106,10 +110,12 @@ export const checkNoProjectionAcrossCollection = (path: ConceptualPathNode, acce
       accept('error', "No Projection Across Collection ", { node: path, property:"node" });
    }
 }
-const noProjectionAcrossCollection = (path: ConceptualPathNode) =>{
+const noProjectionAcrossCollection = (path: ConceptualPathNode): boolean =>{
+   let result = false;
    if(projectsAcrossCollection(path)){
-       return path.node === null
+       result = path.node === null
    }
+   return result;
 }
 
 /*
@@ -119,18 +125,18 @@ const noProjectionAcrossCollection = (path: ConceptualPathNode) =>{
 * Invariant pathNodeResolvable
 */
 export const checkPathNodeResolvable = (path: ConceptualPathNode, datamodel: DataModel, accept: ValidationAcceptor) =>{
-   if(pathNodeResolvable(path, datamodel)){
+   if(!pathNodeResolvable(path, datamodel)){
       accept('error', "Path Node should be Resolvable", { node: path, property:"node" });
    }
 }
 
-const pathNodeResolvable = (path: ConceptualPathNode, datamodel: DataModel) =>{
+export const pathNodeResolvable = (path: ConceptualPathNode, datamodel: DataModel): boolean =>{
+   let result = false
    if(path.node){
       let nodetype = getNodeType(path, datamodel)
       if(nodetype){
-         return isConceptualEntity(nodetype) && isResolvableFromConceptualEntity(nodetype, path.node)
-      }else{
-         return false;
+         result = isConceptualEntity(nodetype) && isResolvableFromConceptualEntity(nodetype, path.node)
       }
    }
+   return result;
 }

@@ -166,7 +166,7 @@ export const cassoc2:any = {
   participant:[cparticipent1,cparticipent2]
 };
 
-export const elm= {
+export const datamodel: unknown= {
   cdm:[{name:'a',
         cdm:[{name:'b',
               cdm:[],
