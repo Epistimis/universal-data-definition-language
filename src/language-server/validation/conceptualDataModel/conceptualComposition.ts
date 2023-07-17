@@ -72,12 +72,12 @@ export const isMultiplicityConsistentWithSpecialization = (model:ConceptualCompo
 * Invariant specializationDistinct
 */
 export const checkSpecializationDistinct = (model: ConceptualComposition, accept : ValidationAcceptor) =>{
-    if(isMultiplicityConsistentWithSpecialization(model)){
+    if(isSpecializationDistinct(model)){
         accept('error', "Specialization must be distinct", { node: model, property: "specializes" });
     }
 }
      
-export const isSpecializationDistinct= (model:ConceptualComposition):boolean =>{
+export const isSpecializationDistinct = (model:ConceptualComposition):boolean =>{
     let result = false;
     if(model.specializes?.ref && isConceptualComposition(model.specializes.ref)){
         result = model.type.ref !== model.specializes.ref.type.ref || 
