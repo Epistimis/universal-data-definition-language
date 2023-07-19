@@ -17,20 +17,20 @@ const getAllLocalCharacteristics = (model: ConceptualEntity | ConceptualAssociat
 * Helper method that gets the ConceptualCharacteristics of a ConceptualEntity, including those from specialized Entities.
 */
 export const getAllCharacteristics = (entity: ConceptualEntity): ConceptualCharacteristic[] =>{
-    let allchar = new Set<ConceptualCharacteristic>();
-    return Array.from(allCharacteristics(entity, allchar));
+    let allChar = new Set<ConceptualCharacteristic>();
+    return Array.from(allCharacteristics(entity, allChar));
 }
 
-const allCharacteristics = (entity: ConceptualEntity, specchar: Set<ConceptualCharacteristic>): Set<ConceptualCharacteristic> =>{
+const allCharacteristics = (entity: ConceptualEntity, specChar: Set<ConceptualCharacteristic>): Set<ConceptualCharacteristic> =>{
 
     let char = getAllLocalCharacteristics(entity);
     char.forEach(item =>{
-    specchar.add(item);
+    specChar.add(item);
     })
     if(entity.specializes?.ref){
-        allCharacteristics(entity.specializes?.ref, specchar)
+        allCharacteristics(entity.specializes?.ref, specChar)
     }
-    return specchar;    
+    return specChar;    
 }
 
 /*
@@ -43,12 +43,12 @@ export const getEntityIdentity = (model: ConceptualEntity): (string |
         upperBound: number | undefined;
     })[] => {
         let identity: {type:ConceptualComposableElement| undefined, lowerBound: number|undefined, upperBound:number|undefined} [] = []
-        let allchar = getAllCharacteristics(model);
-        allchar.map(chart =>{
-            identity.push(getIdentityContribution(chart))
+        let allChar = getAllCharacteristics(model);
+        allChar.map(item =>{
+            identity.push(getIdentityContribution(item))
         })
-        const allbasis = getBasisEntities(model);
-        return [...identity, ...allbasis];
+        const allBasis = getBasisEntities(model);
+        return [...identity, ...allBasis];
 }
   
 /*
@@ -56,20 +56,20 @@ export const getEntityIdentity = (model: ConceptualEntity): (string |
 * including those from specialized Entities.
 */
 export const getBasisEntities = (model: ConceptualEntity): string[] =>{
-        let basisen = new Set<string>();
-        return Array.from(getallbasis(model, basisen));
+        let basisEn = new Set<string>();
+        return Array.from(getallbasis(model, basisEn));
 }
 
-const getallbasis = (model: ConceptualEntity, allbasis : Set<string>) =>{
+const getallbasis = (model: ConceptualEntity, allBasis : Set<string>) =>{
         model.basisEntity.forEach(item => {
             if(item.ref){
-               allbasis.add(item.ref.name)
+               allBasis.add(item.ref.name)
             }
         })
         if(model.specializes?.ref){
-            getallbasis(model.specializes.ref, allbasis)
+            getallbasis(model.specializes.ref, allBasis)
         }
-        return allbasis;
+        return allBasis;
 }
   
 /*
@@ -85,14 +85,14 @@ export const checkEntityIsUnique = (model: ConceptualEntity,datamodel: DataModel
             accept('error', 'An entity must be unique', {node: model, property: "composition" });
         }
 }
-export const isEntityIsUnique = (model: ConceptualEntity, datamodel: DataModel): boolean=>{
-        let centitySpec: Set<string> = new Set();
+export const isEntityIsUnique = (model: ConceptualEntity, dataModel: DataModel): boolean=>{
+        let entitySpec: Set<string> = new Set();
         let allIdentity: (string| {type:ConceptualComposableElement| undefined, lowerBound: number|undefined, upperBound:number|undefined} )[][] = [];
         
         //if no cycle in specialization continue
-         if(!cyclesInSpecialization(model, centitySpec)){
+         if(!cyclesInSpecialization(model, entitySpec)){
             //collect all entity's identity except self
-            datamodel.cdm.forEach(item => {
+            dataModel.cdm.forEach(item => {
                 item.element.forEach(item =>{
                     if(isConceptualEntity(item) && item.name !== model.name){
                         allIdentity.push(getEntityIdentity(item));
@@ -101,15 +101,15 @@ export const isEntityIsUnique = (model: ConceptualEntity, datamodel: DataModel):
             });
 
             //get self identity 
-            let modelidentity = getEntityIdentity(model);
+            let modelIdentity = getEntityIdentity(model);
             
             //check if entity is unique
             allIdentity.forEach(arrayItem => {
                  arrayItem.forEach( item =>{
                         if(typeof item === 'string' ){
-                            return !modelidentity.includes(item);
+                            return !modelIdentity.includes(item);
                         }else{
-                            modelidentity.forEach(modelItem =>{
+                            modelIdentity.forEach(modelItem =>{
                                 if(typeof modelItem === 'object' ){
                                     return !(modelItem.type === item.type || modelItem.lowerBound === item.lowerBound || modelItem.upperBound === item.upperBound);
                                 }
@@ -148,15 +148,15 @@ export const checkForCyclesInSpecialization = (entity: ConceptualEntity, accept:
             accept('error', 'A ConceptualEntity is not a specialization of itself.', {node: entity, property: "composition" });
         }    
 }
-export const cyclesInSpecialization = (entity: ConceptualEntity, centityspec: Set<string>): boolean =>{
+export const cyclesInSpecialization = (entity: ConceptualEntity, entitySpec: Set<string>): boolean =>{
         let result = false
-        centityspec.add(entity?.name);
+        entitySpec.add(entity?.name);
         const spec = entity.specializes?.ref;
         if(spec !== undefined) {
-            if(centityspec.has(spec.name)){
+            if(entitySpec.has(spec.name)){
                 result = true;
             }else{
-                result = cyclesInSpecialization(spec, centityspec); 
+                result = cyclesInSpecialization(spec, entitySpec); 
             }
         }
         return result;
@@ -224,19 +224,19 @@ export const checkObservableComposedOnce = (entity: ConceptualEntity, accept: Va
             accept('error', 'An Entity does not compose the same Observable more than once.', {node: entity , property: "name"});
         }
 }
-export const observableComposedOnce = (model: ConceptualEntity, observablecontainer: Set<string>):boolean =>{
+export const observableComposedOnce = (model: ConceptualEntity, observableContainer: Set<string>):boolean =>{
         let result = true
         model.composition.forEach(item =>{
             if(item.type.ref?.$type === 'ConceptualObservable'){
-               if(observablecontainer.has(item.type.ref?.name)){
+               if(observableContainer.has(item.type.ref?.name)){
                     result = false;
                }else{
-                    observablecontainer.add(item.type.ref?.name)
+                    observableContainer.add(item.type.ref?.name)
                }
             }
         })
         if(result && model.specializes?.ref){
-            result = observableComposedOnce(model.specializes?.ref, observablecontainer)
+            result = observableComposedOnce(model.specializes?.ref, observableContainer)
         }
         return result;
 }
@@ -281,7 +281,7 @@ export const checkSpecializingConceptualCharacteristicsConsistent = (model: Conc
         }
 };
       
-export const specializingConceptualCharacteristicsConsistent = (model: ConceptualEntity | ConceptualAssociation, conchar?: ConceptualCharacteristic[]): boolean => {
+export const specializingConceptualCharacteristicsConsistent = (model: ConceptualEntity | ConceptualAssociation, conChar?: ConceptualCharacteristic[]): boolean => {
         let characteristics = getAllLocalCharacteristics(model);
         characteristics = characteristics.filter(elm => elm.specializes?.ref);
         let result = false;
@@ -290,10 +290,10 @@ export const specializingConceptualCharacteristicsConsistent = (model: Conceptua
           result = characteristics.length === 0;
         } else {
           if (characteristics.length > 0) {
-            //conchar is just the array of allLocalCharacteristics that will be sent to recursive call to check for common specializations in all local characteristics in specialization cycle.
-            if (conchar?.length) {
+            //conChar is just the array of allLocalCharacteristics that will be sent to recursive call to check for common specializations in all local characteristics in specialization cycle.
+            if (conChar?.length) {
               //check if all characteristics of A' specialize nothing from A
-                result = conchar.every(c =>
+                result = conChar.every(c =>
                     characteristics.every(sc => sc.specializes?.ref !== c.specializes?.ref)
                 );
                 //if true pass all characteristics to next specialization cycle
