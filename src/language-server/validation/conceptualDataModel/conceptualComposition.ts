@@ -8,7 +8,7 @@ import { ConceptualComposition, ConceptualEntity, isConceptualComposition} from 
  * invariant typeConsistentWithSpecialization
  */
 export const checkTypeConsistentWithSpecialization = (model: ConceptualComposition, accept: ValidationAcceptor) => {
-    if (typeConsistentWithSpecialization(model)) {
+    if (!typeConsistentWithSpecialization(model)) {
         accept('error', "Type must be consistent with specialization", { node: model, property: "specializes" });
     }
 }
@@ -48,12 +48,12 @@ export const isSpecializationOf = (spec: ConceptualEntity, model: ConceptualEnti
 * Invariant multiplicityConsistentWithSpecialization
 */
 export const checkMultiplicityConsistentWithSpecialization = (model: ConceptualComposition, accept : ValidationAcceptor) =>{
-   if(isMultiplicityConsistentWithSpecialization(model)){
+   if(!isMultiplicityConsistentWithSpecialization(model)){
       accept('error', "multiplicity must be consistent with specialization", { node: model, property: "specializes" });
    }
 }
 
-export const isMultiplicityConsistentWithSpecialization = (model:ConceptualComposition):boolean =>{
+export const isMultiplicityConsistentWithSpecialization = (model:ConceptualComposition): boolean =>{
     let result = false;
     if(model.specializes?.ref){
         if(model.lowerBound && model.upperBound && model.specializes.ref.lowerBound && model.specializes.ref.upperBound){
@@ -72,7 +72,7 @@ export const isMultiplicityConsistentWithSpecialization = (model:ConceptualCompo
 * Invariant specializationDistinct
 */
 export const checkSpecializationDistinct = (model: ConceptualComposition, accept : ValidationAcceptor) =>{
-    if(isSpecializationDistinct(model)){
+    if(!isSpecializationDistinct(model)){
         accept('error', "Specialization must be distinct", { node: model, property: "specializes" });
     }
 }
