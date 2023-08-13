@@ -17,20 +17,20 @@ import { getIdentityContribution } from "./conceptualCharacteristic";
      * Helper method that gets the ConceptualCharacteristics of a ConceptualEntity, including those from specialized Entities.
      */
     export const getAllCharacteristics = (entity: ConceptualEntity) =>{
-        let allchar = new Set<ConceptualCharacteristic>();
-        return Array.from(allCharacteristics(entity, allchar));
+        let allChar = new Set<ConceptualCharacteristic>();
+        return Array.from(allCharacteristics(entity, allChar));
     }
 
-    const allCharacteristics = (entity: ConceptualEntity, specchar: Set<ConceptualCharacteristic>) =>{
+    const allCharacteristics = (entity: ConceptualEntity, specChar: Set<ConceptualCharacteristic>) =>{
 
         let char = getAllLocalCharacteristics(entity);
         char.forEach(item =>{
-            specchar.add(item);
+            specChar.add(item);
         })
         if(entity.specializes?.ref){
-            allCharacteristics(entity.specializes?.ref, specchar)
+            allCharacteristics(entity.specializes?.ref, specChar)
         }
-        return specchar;
+        return specChar;
     }
 
     /*
