@@ -4,7 +4,7 @@ grammar UniversalDataDefinitionLanguage
 // Starter rule comes first
 
 entry File:
-    (import+=Import)*
+    (include+=Include)*
     model+=DataModel+
     ;
 
@@ -18,8 +18,8 @@ QN returns string:
     ID ('.' ID )*  
 ;
 
-Import infers Import:
-    'import' importedNamespace=QualifiedNameWithWildcard   
+Include infers Include:
+    'include' importedNamespace=QualifiedNameWithWildcard   
 ;
 
 QualifiedNameWithWildcard returns string:
@@ -155,7 +155,7 @@ LogicalNatural infers LogicalNatural:
 ;
 
 LogicalReal infers LogicalReal:
-    'real' name=ID  (description=STRING )? ';'  
+    'real' name=ID  (description=STRING )? ';' 	
 ;
 
 LogicalNonNegativeReal infers LogicalNonNegativeReal:
@@ -164,6 +164,10 @@ LogicalNonNegativeReal infers LogicalNonNegativeReal:
 
 LogicalEnumerated infers LogicalEnumerated:
     'enum' name=ID  (description=STRING )? ('stdRef:' standardReference=STRING  )? '[' label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? (label+=(LogicalEnumerationLabel | LogicalEnumeratedSet ) ','? )* ']' ';'  
+;
+
+Taxonomy infers Taxonomy:
+    LogicalEnumeratedBase 
 ;
 
 LogicalEnumeratedBase infers LogicalEnumeratedBase:

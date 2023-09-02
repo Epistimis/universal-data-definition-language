@@ -10,7 +10,7 @@
     },
     {
       "name": "keyword.control.universal-data-definition-language",
-      "match": "\\b(aconv|arr|basis|bool|cassoc|ccquery|cdm|centity|char|conv|coord|cquery|csa|dm|domain|double|ec|enum|float|flsc|import|int|irc|isUnion|landmark|lassoc|lcquery|ldm|ldouble|lentity|llong|long|lquery|lunit|maxis|mc|meas|msa|msc|msys|nat|observable|octet|passoc|pcquery|pdm|pentity|pquery|real|rec|rrc|seq|short|smsys|str|string|struct|ullong|ulong|ushort|vtu|wchar)\\b|\\b(angleEq:|axis:|basis:|char\\[|coord:|distanceEq:|eqn:|extRefStd:|fixed\\[|landmark:|loss:|maxis:|msaxis:|orient:|participants:|path:|prec:|real\\+|refPt:|refStd:|source:|spec:|src:|stdRef:|string\\[|sys:|vtu:)\\B"
+      "match": "\\b(aconv|arr|basis|bool|cassoc|ccquery|cdm|centity|char|conv|coord|cquery|csa|dm|domain|double|ec|enum|float|flsc|include|int|irc|isUnion|landmark|lassoc|lcquery|ldm|ldouble|lentity|llong|long|lquery|lunit|maxis|mc|meas|msa|msc|msys|nat|observable|octet|passoc|pcquery|pdm|pentity|pquery|real|rec|rrc|seq|short|smsys|str|string|struct|ullong|ulong|ushort|vtu|wchar)\\b|\\b(angleEq:|axis:|basis:|char\\[|coord:|distanceEq:|eqn:|extRefStd:|fixed\\[|landmark:|loss:|maxis:|msaxis:|orient:|participants:|path:|prec:|real\\+|refPt:|refStd:|source:|spec:|src:|stdRef:|string\\[|sys:|vtu:)\\B"
     },
     {
       "name": "string.quoted.double.universal-data-definition-language",
