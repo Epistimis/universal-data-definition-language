@@ -19,13 +19,13 @@ export const getType = (model: ConceptualCharacteristic, dataModel: DataModel): 
 * Helper method that gets the contribution a ConceptualCharacteristic makes
 * to a ConceptualEntity's uniqueness.
 */ 
-export const getIdentityContribution = (model: ConceptualCharacteristic) =>{
-    if(isConceptualComposition(model)){
-        return getIdentityContributionOfComposition(model);
-    }else if(isConceptualParticipant(model)){
-        return getIdentityContributionOfParticipents(model)
-    }
-}
+// export const getIdentityContribution = (model: ConceptualCharacteristic) =>{
+//     if(isConceptualComposition(model)){
+//         return getIdentityContributionOfComposition(model);
+//     }else if(isConceptualParticipant(model)){
+//         return getIdentityContributionOfParticipents(model)
+//     }
+// }
 
 /**
 * A ConceptualCharacteristic's lowerBound is less than or equal to its upperBound, unless its upperBound is -1.

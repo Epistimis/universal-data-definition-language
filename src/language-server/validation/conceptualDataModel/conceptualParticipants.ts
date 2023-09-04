@@ -141,16 +141,17 @@ export const checkRolenameDefined = (model: ConceptualParticipant, accept: Valid
 * UDDL/com.epistimis.uddl/src/com/epistimis/uddl/constraints/conceptual.ocl
 * Invariant pathNodeResolvable
 */
-export const checkkPathNodeResolvable = (model: ConceptualParticipant, accept: ValidationAcceptor) => {
-    if(!isPathNodeResolvable(model)){
-        accept('error', "Path node should be resolvable", { node: model, property: "path" });
-    }
-}
-export const isPathNodeResolvable = (model: ConceptualParticipant): boolean | undefined=>{
-   if(model.path){
-       return isResolvableFromConceptualEntity(model.type.ref, model.path);
-   }
-}
+// TODO: Finish implementing isResolvableFromConceptualEntity then uncomment this
+// export const checkkPathNodeResolvable = (model: ConceptualParticipant, accept: ValidationAcceptor) => {
+//     if(!isPathNodeResolvable(model)){
+//         accept('error', "Path node should be resolvable", { node: model, property: "path" });
+//     }
+// }
+// export const isPathNodeResolvable = (model: ConceptualParticipant): boolean | undefined=>{
+//    if(model.path){
+//        return isResolvableFromConceptualEntity(model.type.ref, model.path);
+//    }
+// }
 
 
 /*
