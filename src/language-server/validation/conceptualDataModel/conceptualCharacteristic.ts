@@ -1,8 +1,8 @@
 import { ValidationAcceptor } from "langium";
-import { ConceptualCharacteristic, ConceptualComposableElement, DataModel, isConceptualComposition, isConceptualParticipant } from "../../generated/ast";
+import { ConceptualCharacteristic, ConceptualComposableElement, DataModel, isConceptualComposition } from "../../generated/ast";
 import { isValidIdentifier } from "../uddlElement";
 import { getResolvedType } from "./conceptualParticipants";
-import { getIdentityContributionOfComposition } from "./conceptualComposition";
+// import { getIdentityContributionOfComposition } from "./conceptualComposition";
 
 /*
 * Helper method that gets the type of a ConceptualCharacteristic.
@@ -19,13 +19,13 @@ export const getType = (model: ConceptualCharacteristic, dataModel: DataModel): 
 * Helper method that gets the contribution a ConceptualCharacteristic makes
 * to a ConceptualEntity's uniqueness.
 */ 
-export const getIdentityContribution = (model: ConceptualCharacteristic) =>{
-    if(isConceptualComposition(model)){
-        return getIdentityContributionOfComposition(model);
-    }else if(isConceptualParticipant(model)){
-        return getIdentityContributionOfParticipents(model)
-    }
-}
+// export const getIdentityContribution = (model: ConceptualCharacteristic) =>{
+//     if(isConceptualComposition(model)){
+//         return getIdentityContributionOfComposition(model);
+//     }else if(isConceptualParticipant(model)){
+//         return getIdentityContributionOfParticipents(model)
+//     }
+// }
 
 /**
 * A ConceptualCharacteristic's lowerBound is less than or equal to its upperBound, unless its upperBound is -1.

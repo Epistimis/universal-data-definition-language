@@ -37,6 +37,14 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         dataModel.cdm.forEach( dm => {
             this.formatConceptualDataModel(dm);
         })
+        
+        dataModel.ldm.forEach(dm => {
+            this.formatLogicalDataModel(dm)
+        })
+
+        dataModel.pdm.forEach(dm => {
+            this.formatPlatfornDataModel(dm)
+        })
 
     }
 
@@ -50,10 +58,36 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         })
     }
 
+    protected formatLogicalDataModel(ldm: ast.LogicalDataModel): void {
+        this.formatContainer(ldm)
+        ldm.ldm.forEach(dm => {
+            this.formatLogicalDataModel(dm)
+        })
+        ldm.element.forEach( elem => {
+            this.formatElement(elem)
+        })
+    }
+
+    protected formatPlatfornDataModel(pdm: ast.PlatformDataModel): void {
+        this.formatContainer(pdm)
+        pdm.pdm.forEach(dm => {
+            this.formatPlatfornDataModel(dm)
+        })
+        pdm.element.forEach(elem => {
+            this.formatElement(elem)
+        })
+    }
+
     protected formatConceptualElement(elem: ast.ConceptualElement): void {
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);
+    }
+
+    protected formatElement(elem: ast.LogicalElement | ast.PlatformElement): void {
+        const formatter = this.getNodeFormatter(elem);
+        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+        this.formatObj(elem);   
     }
 }
 
@@ -64,3 +98,4 @@ export const UniversalDataDefinitionLanguageModule: Module<UniversalDataDefiniti
         Formatter: () => new UniversalDataDefinitionLanguageFormatter()
     }
 };
+
