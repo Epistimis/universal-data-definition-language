@@ -1,6 +1,6 @@
     import { ValidationAcceptor } from "langium";
-    import { ConceptualEntity , ConceptualAssociation, ConceptualCharacteristic, ConceptualParticipant, ConceptualBasisEntity, DataModel, isConceptualEntity} from "../../generated/ast";
-import { getIdentityContribution } from "./conceptualCharacteristic";
+    import { ConceptualEntity , ConceptualAssociation, ConceptualCharacteristic, ConceptualParticipant, ConceptualBasisEntity} from "../../generated/ast";
+// import { getIdentityContribution } from "./conceptualCharacteristic";
 
     /*
      * Helper method that gets the ConceptualCharacteristics contained in a ConceptualEntity.
@@ -37,12 +37,12 @@ import { getIdentityContribution } from "./conceptualCharacteristic";
      * Helper method that gets the identity of a conceptual ConceptualEntity.
      */
     export const getEntityIdentity = (model: ConceptualEntity) =>{
-        let indentity 
+        // let indentity 
         let allchar = getAllCharacteristics(model);
         allchar.map(chart =>{
-           indentity.push(getIdentityContribution(chart))
+        //    indentity.push(getIdentityContribution(chart))
         })
-        const allbasis = getBasisEntities(model);
+        // const allbasis = getBasisEntities(model);
     }
   
     /*

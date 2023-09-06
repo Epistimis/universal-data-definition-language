@@ -1,8 +1,8 @@
 import { ValidationAcceptor } from "langium";
-import { ConceptualCharacteristic, ConceptualComposableElement, DataModel, isConceptualComposition, isConceptualParticipant } from "../../generated/ast";
+import { ConceptualCharacteristic, ConceptualComposableElement, DataModel, isConceptualComposition } from "../../generated/ast";
 import { isValidIdentifier } from "../uddlElement";
 import { getResolvedType } from "./conceptualParticipants";
-import { getIdentityContributionOfComposition } from "./conceptualComposition";
+// import { getIdentityContributionOfComposition } from "./conceptualComposition";
 
 /*
 * Helper method that gets the type of a ConceptualCharacteristic.

@@ -21,7 +21,7 @@ export const getProjectedCharacteristic = (path: ConceptualPathNode) =>{
 * Returns a ConceptualComposableElement.
 */
 export const getNodeType = (path: ConceptualPathNode, datamodel: DataModel) : ConceptualComposableElement=>{
-   let result
+   let result:ConceptualComposableElement
      if(isConceptualCharacteristicPathNode(path)){
         result = getType(path.projectedCharacteristic.ref!, datamodel);
      }else if(isConceptualParticipantPathNode(path)){

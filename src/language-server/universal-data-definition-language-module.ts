@@ -4,6 +4,7 @@ import {
 } from 'langium';
 import { UniversalDataDefinitionLanguageGeneratedModule, UniversalDataDefinitionLanguageGeneratedSharedModule } from './generated/module';
 import { UniversalDataDefinitionLanguageValidationRegistry, UniversalDataDefinitionLanguageValidator}  from './validation/universal-data-definition-language-validator';
+import { UniversalDataDefinitionLanguageFormatter } from './universal-data-definition-language-formatter';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -29,6 +30,9 @@ export const UniversalDataDefinitionLanguageModule: Module<UniversalDataDefiniti
     validation: {
         ValidationRegistry: (services) => new UniversalDataDefinitionLanguageValidationRegistry(services),
         UniversalDataDefinitionLanguageValidator: () => new UniversalDataDefinitionLanguageValidator()
+    },
+    lsp:{
+        Formatter: () => new UniversalDataDefinitionLanguageFormatter()
     }
 };
 
