@@ -64,7 +64,7 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
             this.formatLogicalDataModel(dm)
         })
         ldm.element.forEach( elem => {
-            this.formatElement(elem)
+            this.formatLogicalElement(elem)
         })
     }
 
@@ -74,7 +74,7 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
             this.formatPlatfornDataModel(dm)
         })
         pdm.element.forEach(elem => {
-            this.formatElement(elem)
+            this.formatPlatformElement(elem)
         })
     }
 
@@ -84,7 +84,31 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         this.formatObj(elem);
     }
 
-    protected formatElement(elem: ast.LogicalElement | ast.PlatformElement): void {
+    protected formatConceptualEntity(entity: ast.ConceptualEntity): void {
+        this.formatContainer(entity)
+        entity.basisEntity.forEach(basis => {
+
+        })
+        entity.composition.forEach(comp => {
+            this.formatConceptualComposition(comp)
+        })
+    }
+
+    protected formatConceptualAssociation(assoc: ast.ConceptualAssociation): void {}
+
+    protected formatConceptualCharacteristic(xter: ast.ConceptualCharacteristic): void {}
+
+    protected formatConceptualComposition(comp: ast.ConceptualComposition   ): void {}
+
+    protected formatConceptualParticipant(participant: ast.ConceptualParticipant): void {}
+
+    protected formatLogicalElement(elem: ast.LogicalElement): void {
+        const formatter = this.getNodeFormatter(elem);
+        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+        this.formatObj(elem);   
+    }
+
+    protected formatPlatformElement(elem: ast.PlatformElement): void {
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);   
@@ -98,4 +122,3 @@ export const UniversalDataDefinitionLanguageModule: Module<UniversalDataDefiniti
         Formatter: () => new UniversalDataDefinitionLanguageFormatter()
     }
 };
-
