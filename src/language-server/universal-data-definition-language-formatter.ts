@@ -1,4 +1,4 @@
-import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices } from 'langium';
+import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices, Reference } from 'langium';
 import * as ast from './generated/ast';
 import { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
 
@@ -86,21 +86,40 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
 
     protected formatConceptualEntity(entity: ast.ConceptualEntity): void {
         this.formatContainer(entity)
+        if(entity?.specializes){
+            this.formatConceptualEntity(entity)
+        }
         entity.basisEntity.forEach(basis => {
-
+            this.formatConceptualBasisEntity(basis)
         })
         entity.composition.forEach(comp => {
             this.formatConceptualComposition(comp)
         })
     }
 
+    protected formatConceptualBasisEntity(basisRef: Reference<ast.ConceptualBasisEntity>): void {
+        const formatter = this.getNodeFormatter(basisRef.ref!);
+        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+      console.log(basisRef);
+      
+        this.formatObj(basisRef.ref!);
+}
+
     protected formatConceptualAssociation(assoc: ast.ConceptualAssociation): void {}
 
     protected formatConceptualCharacteristic(xter: ast.ConceptualCharacteristic): void {}
 
-    protected formatConceptualComposition(comp: ast.ConceptualComposition   ): void {}
+    protected formatConceptualComposition(comp: ast.ConceptualComposition   ): void {
+        this.formatContainer(comp)
+    }
 
-    protected formatConceptualParticipant(participant: ast.ConceptualParticipant): void {}
+    protected formatConceptualParticipant(participant: ast.ConceptualParticipant): void {
+        this.formatContainer(participant)
+        
+        if(participant?.type){
+            this.formatConceptualEntity(participant.type.ref!)
+        }
+    }
 
     protected formatLogicalElement(elem: ast.LogicalElement): void {
         const formatter = this.getNodeFormatter(elem);
