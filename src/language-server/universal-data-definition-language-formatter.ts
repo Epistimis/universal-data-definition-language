@@ -1,9 +1,8 @@
-import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices, Reference } from 'langium';
+import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices, } from 'langium';
 import * as ast from './generated/ast';
 import { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
 
 export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter {
-
     protected formatContainer(node: AstNode): void {
         const formatter = this.getNodeFormatter(node);
         const open = formatter.keyword('{');
@@ -22,11 +21,21 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         close.surround(Formatting.noSpace()).prepend(Formatting.newLine({allowMore: true})).append(Formatting.newLine({allowMore: true}));
     }
 
-    protected format(node: AstNode): void {
+    protected format(node: AstNode): void {        
         // This method is called for every AstNode in a document
         if (ast.isDataModel(node)) {
             this.formatDataModel(node);
+        }
+        if(ast.isConceptualAssociation(node)){            
+            this.formatConceptualAssociation(node)
+        }
 
+        if(ast.isConceptualEntity(node)){
+            this.formatConceptualEntity(node)
+        }
+
+        if(ast.isConceptualBasisEntity(node)){
+            this.formatConceptualBasisEntity(node)
         }
     }
 
@@ -50,10 +59,10 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
 
     protected formatConceptualDataModel(cdm: ast.ConceptualDataModel): void {
         this.formatContainer(cdm);
-        cdm.cdm.forEach(dm => {
+        cdm.cdm.forEach(dm => {            
             this.formatConceptualDataModel(dm);
         })
-        cdm.element.forEach( elem => {
+        cdm.element.forEach( elem => {            
             this.formatConceptualElement(elem);
         })
     }
@@ -78,34 +87,32 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         })
     }
 
-    protected formatConceptualElement(elem: ast.ConceptualElement): void {
+    /**Formatting conceptuals */
+    protected formatConceptualElement(elem: ast.ConceptualElement): void {                
         const formatter = this.getNodeFormatter(elem);
-        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+        formatter.property('name').prepend(Formatting.newLine({allowMore: true})).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);
     }
 
     protected formatConceptualEntity(entity: ast.ConceptualEntity): void {
         this.formatContainer(entity)
-        if(entity?.specializes){
-            this.formatConceptualEntity(entity)
-        }
-        entity.basisEntity.forEach(basis => {
-            this.formatConceptualBasisEntity(basis)
-        })
         entity.composition.forEach(comp => {
             this.formatConceptualComposition(comp)
         })
     }
 
-    protected formatConceptualBasisEntity(basisRef: Reference<ast.ConceptualBasisEntity>): void {
-        const formatter = this.getNodeFormatter(basisRef.ref!);
+    protected formatConceptualBasisEntity(basis: ast.ConceptualBasisEntity): void {
+        const formatter = this.getNodeFormatter(basis);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
-      console.log(basisRef);
-      
-        this.formatObj(basisRef.ref!);
-}
+    }
 
-    protected formatConceptualAssociation(assoc: ast.ConceptualAssociation): void {}
+    protected formatConceptualAssociation(cassoc: ast.ConceptualAssociation): void {
+        this.formatContainer(cassoc)
+
+        cassoc.composition.forEach(comp => {
+            this.formatConceptualComposition(comp)
+        })
+    }
 
     protected formatConceptualCharacteristic(xter: ast.ConceptualCharacteristic): void {}
 
