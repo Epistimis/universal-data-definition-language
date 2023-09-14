@@ -10,14 +10,14 @@ describe("Universal Data Definition Language Formatter", () => {
   it("should format cdm ", async () => {
     await universalDataDefinitionLanguageFormatting({
       before:
-        'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{basis ee;}}',
+        'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{basis uddlBasis "Formating conceptual basis entity";}}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
     cdm Conceptual "Need to start at Conceptual Level"
     {
     
-        basis ee ;
+        basis uddlBasis "Formating conceptual basis entity";
     }
     
 }`
