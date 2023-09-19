@@ -31,19 +31,12 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         if (ast.isDataModel(node)) {
             this.formatDataModel(node);
         }
-        // test passes with this commetned check
-        // if(ast.isConceptualAssociation(node)){            
-        //     this.formatConceptualAssociation(node)
-        // }
-
-        if(ast.isConceptualEntity(node)){
-            this.formatConceptualEntity(node)
+        else if(ast.isConceptualAssociation(node)){            
+            this.formatConceptualAssociation(node)
         }
-        
-        // test passes with this commetned check
-        // if(ast.isConceptualBasisEntity(node)){
-        //     this.formatConceptualBasisEntity(node)
-        // }        
+        else if(ast.isConceptualEntity(node)){
+            this.formatConceptualEntity(node)
+        }                
     }
 
 
@@ -108,10 +101,6 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         })
     }
 
-    protected formatConceptualBasisEntity(basis: ast.ConceptualBasisEntity): void {
-        this.formatNode(basis)
-        }
-
     protected formatConceptualAssociation(cassoc: ast.ConceptualAssociation): void {
         this.formatContainer(cassoc)
 
@@ -119,8 +108,6 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
             this.formatConceptualComposition(comp)
         })
     }
-
-    protected formatConceptualCharacteristic(xter: ast.ConceptualCharacteristic): void {}
 
     protected formatConceptualComposition(comp: ast.ConceptualComposition   ): void {
         this.formatContainer(comp)
@@ -134,6 +121,7 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         }
     }
 
+    /**Formatting logicals */
     protected formatLogicalElement(elem: ast.LogicalElement): void {
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
