@@ -8,8 +8,7 @@ const universalDataDefinitionLanguageFormatting = expectFormatting(universalData
 describe("Universal Data Definition Language Formatter", () => {
   it("should format cdm array", async () => {
     await universalDataDefinitionLanguageFormatting({
-      before:
-        'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{cdm anothercdm "A cdm with another data" {observable Information "Something a party can learn";}}}',
+      before:'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{cdm anothercdm "A cdm with another data" {observable Information "Something a party can learn";}}}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
@@ -30,8 +29,7 @@ describe("Universal Data Definition Language Formatter", () => {
 
   it("should format cdm with conceptual association", async () => {
     await universalDataDefinitionLanguageFormatting({
-      before:
-        'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{cassoc Training "Information delivered over time from one party to another " {};}}',
+      before:'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{cassoc Training "Information delivered over time from one party to another " {};}}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
@@ -51,8 +49,7 @@ describe("Universal Data Definition Language Formatter", () => {
 
   it("should format cdm with conceptual entity", async () => {
     await universalDataDefinitionLanguageFormatting({
-      before:
-        'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{centity AddressableEntity "Any entity that is addressable in some way" {};}}',
+      before:'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{centity AddressableEntity "Any entity that is addressable in some way" {};}}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
@@ -72,8 +69,7 @@ describe("Universal Data Definition Language Formatter", () => {
 
   it('should format cdm with conceptual basis',async () => {
     await universalDataDefinitionLanguageFormatting({
-      before: 
-      'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{basis uddlBasis "Formating conceptual basis entity"; }}',
+      before: 'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{basis uddlBasis "Formating conceptual basis entity"; }}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
@@ -89,8 +85,7 @@ describe("Universal Data Definition Language Formatter", () => {
 
   it('should format cdm with conceptual domain',async () => {
     await universalDataDefinitionLanguageFormatting({
-      before: 
-      'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{domain NaturalPerson "Base definition of a natural person"; }}',
+      before: 'dm PPT "Base data structures to support People, Places and Things"{cdm Conceptual "Need to start at Conceptual Level"{domain NaturalPerson "Base definition of a natural person"; }}',
       after: `dm PPT "Base data structures to support People, Places and Things"
 {
 
