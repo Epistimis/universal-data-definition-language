@@ -36,7 +36,32 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         }
         else if(ast.isConceptualEntity(node)){
             this.formatConceptualEntity(node)
-        }                
+        }             
+        else if(ast.isLogicalEnumerated(node)){
+            this.formatLogicalEnumerated(node)
+        }
+        else if(ast.isLogicalMeasurement(node)){
+            this.formatLogicalMeasurement(node)
+        }  
+        else if(ast.isLogicalMeasurementSystemAxis(node)){
+            this.formatLogicalMeasurementSystemAxis(node)
+        } 
+        else if(ast.isLogicalValueTypeUnit(node)){
+            this.formatLogicalValueTypeUnit(node)
+        }
+        else if(ast.isLogicalMeasurement(node)){
+            this.formatLogicalMeasurement(node)
+        }
+        else if(ast.isLogicalEntity(node)){
+            this.formatLogicalEntity(node)
+        }
+        else if(ast.isLogicalAssociation(node)){
+            this.formatLogicalAssociation(node)
+        }
+        else if(ast.isLogicalParticipantPathNode(node)){
+            this.formatLogicalParticipantPathNode(node)
+        }
+
     }
 
 
@@ -103,7 +128,6 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
 
     protected formatConceptualAssociation(cassoc: ast.ConceptualAssociation): void {
         this.formatContainer(cassoc)
-
         cassoc.composition.forEach(comp => {
             this.formatConceptualComposition(comp)
         })
@@ -114,8 +138,7 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
     }
 
     protected formatConceptualParticipant(participant: ast.ConceptualParticipant): void {
-        this.formatContainer(participant)
-        
+        this.formatContainer(participant)    
         if(participant?.type){
             this.formatConceptualEntity(participant.type.ref!)
         }
@@ -126,6 +149,79 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);   
+    }
+
+    protected formatLogicalEnumerated(lenum: ast.LogicalEnumerated): void {
+        this.formatContainer(lenum)
+        lenum.label.forEach(label => {
+            this.formatContainer(label)
+        })
+    }
+
+    protected formatLogicalMeasurementSystem(sys: ast.LogicalMeasurementSystem): void {
+        this.formatContainer(sys);
+        sys.constraint.forEach(sysConst => {
+            this.formatContainer(sysConst)
+        })
+        sys.referencePoint.forEach(ref => {
+            this.formatLogicalReferencePoint(ref);
+        })
+    }
+
+    protected formatLogicalMeasurementSystemAxis(sysAxis: ast.LogicalMeasurementSystemAxis): void {
+        this.formatContainer(sysAxis);
+        sysAxis.constraint.forEach(sysConst => {
+            this.formatContainer(sysConst);
+        })
+    }
+
+    protected formatLogicalReferencePoint(refPoint: ast.LogicalReferencePoint): void {
+        this.formatContainer(refPoint);
+        refPoint.referencePointPart.forEach(pointPart => {
+            this.formatContainer(pointPart);
+        })
+    }
+
+    protected formatLogicalValueTypeUnit(typeUnit: ast.LogicalValueTypeUnit):void {
+        this.formatContainer(typeUnit);
+        if(typeUnit.constraint){
+            this.formatContainer(typeUnit);
+        }
+    }
+
+    protected formatLogicalMeasurement(measure: ast.LogicalMeasurement): void {
+        this.formatContainer(measure);
+        measure.attribute.forEach(attr => {
+            this.formatContainer(attr)
+        })
+        measure.constraint.forEach(mesConst => {
+            this.formatContainer(mesConst)
+        })
+    }
+
+    protected formatLogicalEntity(entity: ast.LogicalEntity): void {
+        this.formatContainer(entity);
+        entity.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
+    }
+
+    protected formatLogicalAssociation(asso: ast.LogicalAssociation): void {
+        this.formatContainer(asso);
+        asso.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
+        asso.participant.forEach(part => {
+            this.formatLogicalParticipant(part);
+        })
+    }
+
+    protected formatLogicalParticipant(part: ast.LogicalParticipant): void {
+        this.formatContainer(part)
+    }
+
+    protected formatLogicalParticipantPathNode(pathBode: ast.LogicalParticipantPathNode): void {
+        this.formatContainer(pathBode)
     }
 
     protected formatPlatformElement(elem: ast.PlatformElement): void {
