@@ -61,7 +61,18 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         else if(ast.isLogicalParticipantPathNode(node)){
             this.formatLogicalParticipantPathNode(node)
         }
-
+        else if(ast.isPlatformEntity(node)){
+            this.formatPlatformEntity(node)
+        }
+        else if(ast.isPlatformStruct(node)){
+            this.formatPlatformStruct(node)
+        }
+        else if(ast.isPlatformAssociation(node)){
+            this.formatPlatformAssociation(node);
+        }
+        else if(ast.isPlatformCompositeQuery(node)){
+            this.formatPlatformCompositeQuery(node);
+        }
     }
 
 
@@ -224,10 +235,49 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         this.formatContainer(pathBode)
     }
 
+    protected formatLogicalCompositeQuery(query: ast.LogicalCompositeQuery): void {
+        this.formatContainer(query)
+        query.composition.forEach(comp => {
+            this.formatContainer(query)
+        })
+    }
+
     protected formatPlatformElement(elem: ast.PlatformElement): void {
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);   
+    }
+
+    protected formatPlatformEntity(entity: ast.PlatformEntity): void {
+        this.formatContainer(entity)
+        entity.composition.forEach(comp => {
+            this.formatContainer(comp)
+        })
+    }
+
+    protected formatPlatformStruct(str: ast.PlatformStruct): void {
+        this.formatContainer(str)
+        str.member.forEach(mem => {
+            this.formatContainer(mem)
+        })
+    }
+
+    protected formatPlatformAssociation(asso: ast.PlatformAssociation): void {
+        this.formatContainer(asso)
+        asso.participant.forEach(part => {
+            this.formatPlatformParticipant(part);
+        })
+    }
+
+    protected formatPlatformParticipant(part: ast.PlatformParticipant): void {
+        this.formatContainer(part)
+    }
+
+    protected formatPlatformCompositeQuery(query: ast.PlatformCompositeQuery): void {
+        this.formatContainer(query)
+        query.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
     }
 }
 
