@@ -52,23 +52,23 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         else if(ast.isLogicalMeasurement(node)){
             this.formatLogicalMeasurement(node)
         }
-        else if(ast.isLogicalEntity(node)){
-            this.formatLogicalEntity(node)
-        }
-        else if(ast.isLogicalAssociation(node)){
+         else if(ast.isLogicalAssociation(node)){
             this.formatLogicalAssociation(node)
+        }
+       else if(ast.isLogicalEntity(node)){
+            this.formatLogicalEntity(node)
         }
         else if(ast.isLogicalParticipantPathNode(node)){
             this.formatLogicalParticipantPathNode(node)
+        }
+        else if(ast.isPlatformAssociation(node)){
+            this.formatPlatformAssociation(node);
         }
         else if(ast.isPlatformEntity(node)){
             this.formatPlatformEntity(node)
         }
         else if(ast.isPlatformStruct(node)){
             this.formatPlatformStruct(node)
-        }
-        else if(ast.isPlatformAssociation(node)){
-            this.formatPlatformAssociation(node);
         }
         else if(ast.isPlatformCompositeQuery(node)){
             this.formatPlatformCompositeQuery(node);
