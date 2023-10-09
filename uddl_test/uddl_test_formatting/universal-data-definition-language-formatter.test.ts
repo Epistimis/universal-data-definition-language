@@ -193,4 +193,26 @@ describe("Universal Data Definition Language Formatter", () => {
 }`,
     });
   });
+
+  it('should format platform element', async () => {
+    await universalDataDefinitionLanguageFormatting({
+      before:'dm MyDataModel {ldm MyLogicalDataModel {bool LogicalBoolean "Represents a logical boolean";}pdm MyPlatformDataModel {bool BooleanValue "Represents a boolean value" -> MyLogicalDataModel.LogicalBoolean;}}',
+      after:`dm MyDataModel
+{
+
+    ldm MyLogicalDataModel
+    {
+    
+        bool LogicalBoolean "Represents a logical boolean";
+    }
+    
+    pdm MyPlatformDataModel
+    {
+    
+        bool BooleanValue "Represents a boolean value" -> MyLogicalDataModel.LogicalBoolean;
+    }
+    
+}`
+    })
+  })
 });
