@@ -1,9 +1,8 @@
-import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices } from 'langium';
+import { AbstractFormatter, AstNode, Formatting, Module, PartialLangiumServices, } from 'langium';
 import * as ast from './generated/ast';
 import { UniversalDataDefinitionLanguageServices } from './universal-data-definition-language-module';
 
 export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter {
-
     protected formatContainer(node: AstNode): void {
         const formatter = this.getNodeFormatter(node);
         const open = formatter.keyword('{');
@@ -22,11 +21,57 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
         close.surround(Formatting.noSpace()).prepend(Formatting.newLine({allowMore: true})).append(Formatting.newLine({allowMore: true}));
     }
 
-    protected format(node: AstNode): void {
+    protected formatNode(node: AstNode): void {
+        const formatter = this.getNodeFormatter(node);
+        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}))
+    }
+
+    protected format(node: AstNode): void {        
         // This method is called for every AstNode in a document
         if (ast.isDataModel(node)) {
             this.formatDataModel(node);
-
+        }
+        else if(ast.isConceptualAssociation(node)){            
+            this.formatConceptualAssociation(node)
+        }
+        else if(ast.isConceptualEntity(node)){
+            this.formatConceptualEntity(node)
+        }             
+        else if(ast.isLogicalEnumerated(node)){
+            this.formatLogicalEnumerated(node)
+        }
+        else if(ast.isLogicalMeasurement(node)){
+            this.formatLogicalMeasurement(node)
+        }  
+        else if(ast.isLogicalMeasurementSystemAxis(node)){
+            this.formatLogicalMeasurementSystemAxis(node)
+        } 
+        else if(ast.isLogicalValueTypeUnit(node)){
+            this.formatLogicalValueTypeUnit(node)
+        }
+        else if(ast.isLogicalMeasurement(node)){
+            this.formatLogicalMeasurement(node)
+        }
+         else if(ast.isLogicalAssociation(node)){
+            this.formatLogicalAssociation(node)
+        }
+       else if(ast.isLogicalEntity(node)){
+            this.formatLogicalEntity(node)
+        }
+        else if(ast.isLogicalParticipantPathNode(node)){
+            this.formatLogicalParticipantPathNode(node)
+        }
+        else if(ast.isPlatformAssociation(node)){
+            this.formatPlatformAssociation(node);
+        }
+        else if(ast.isPlatformEntity(node)){
+            this.formatPlatformEntity(node)
+        }
+        else if(ast.isPlatformStruct(node)){
+            this.formatPlatformStruct(node)
+        }
+        else if(ast.isPlatformCompositeQuery(node)){
+            this.formatPlatformCompositeQuery(node);
         }
     }
 
@@ -50,10 +95,10 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
 
     protected formatConceptualDataModel(cdm: ast.ConceptualDataModel): void {
         this.formatContainer(cdm);
-        cdm.cdm.forEach(dm => {
+        cdm.cdm.forEach(dm => {            
             this.formatConceptualDataModel(dm);
         })
-        cdm.element.forEach( elem => {
+        cdm.element.forEach( elem => {            
             this.formatConceptualElement(elem);
         })
     }
@@ -64,7 +109,7 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
             this.formatLogicalDataModel(dm)
         })
         ldm.element.forEach( elem => {
-            this.formatElement(elem)
+            this.formatLogicalElement(elem)
         })
     }
 
@@ -74,20 +119,165 @@ export class UniversalDataDefinitionLanguageFormatter extends AbstractFormatter 
             this.formatPlatfornDataModel(dm)
         })
         pdm.element.forEach(elem => {
-            this.formatElement(elem)
+            this.formatPlatformElement(elem)
         })
     }
 
-    protected formatConceptualElement(elem: ast.ConceptualElement): void {
+    /**Formatting conceptuals */
+    protected formatConceptualElement(elem: ast.ConceptualElement): void {                
         const formatter = this.getNodeFormatter(elem);
-        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+        formatter.property('name').prepend(Formatting.newLine({allowMore: true})).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);
     }
 
-    protected formatElement(elem: ast.LogicalElement | ast.PlatformElement): void {
+    protected formatConceptualEntity(entity: ast.ConceptualEntity): void {
+        this.formatContainer(entity)
+        entity.composition.forEach(comp => {
+            this.formatConceptualComposition(comp)
+        })
+    }
+
+    protected formatConceptualAssociation(cassoc: ast.ConceptualAssociation): void {
+        this.formatContainer(cassoc)
+        cassoc.composition.forEach(comp => {
+            this.formatConceptualComposition(comp)
+        })
+    }
+
+    protected formatConceptualComposition(comp: ast.ConceptualComposition   ): void {
+        this.formatContainer(comp)
+    }
+
+    protected formatConceptualParticipant(participant: ast.ConceptualParticipant): void {
+        this.formatContainer(participant)    
+        if(participant?.type){
+            this.formatConceptualEntity(participant.type.ref!)
+        }
+    }
+
+    /**Formatting logicals */
+    protected formatLogicalElement(elem: ast.LogicalElement): void {
         const formatter = this.getNodeFormatter(elem);
         formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
         this.formatObj(elem);   
+    }
+
+    protected formatLogicalEnumerated(lenum: ast.LogicalEnumerated): void {
+        this.formatContainer(lenum)
+        lenum.label.forEach(label => {
+            this.formatContainer(label)
+        })
+    }
+
+    protected formatLogicalMeasurementSystem(sys: ast.LogicalMeasurementSystem): void {
+        this.formatContainer(sys);
+        sys.constraint.forEach(sysConst => {
+            this.formatContainer(sysConst)
+        })
+        sys.referencePoint.forEach(ref => {
+            this.formatLogicalReferencePoint(ref);
+        })
+    }
+
+    protected formatLogicalMeasurementSystemAxis(sysAxis: ast.LogicalMeasurementSystemAxis): void {
+        this.formatContainer(sysAxis);
+        sysAxis.constraint.forEach(sysConst => {
+            this.formatContainer(sysConst);
+        })
+    }
+
+    protected formatLogicalReferencePoint(refPoint: ast.LogicalReferencePoint): void {
+        this.formatContainer(refPoint);
+        refPoint.referencePointPart.forEach(pointPart => {
+            this.formatContainer(pointPart);
+        })
+    }
+
+    protected formatLogicalValueTypeUnit(typeUnit: ast.LogicalValueTypeUnit):void {
+        this.formatContainer(typeUnit);
+        if(typeUnit.constraint){
+            this.formatContainer(typeUnit);
+        }
+    }
+
+    protected formatLogicalMeasurement(measure: ast.LogicalMeasurement): void {
+        this.formatContainer(measure);
+        measure.attribute.forEach(attr => {
+            this.formatContainer(attr)
+        })
+        measure.constraint.forEach(mesConst => {
+            this.formatContainer(mesConst)
+        })
+    }
+
+    protected formatLogicalEntity(entity: ast.LogicalEntity): void {
+        this.formatContainer(entity);
+        entity.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
+    }
+
+    protected formatLogicalAssociation(asso: ast.LogicalAssociation): void {
+        this.formatContainer(asso);
+        asso.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
+        asso.participant.forEach(part => {
+            this.formatLogicalParticipant(part);
+        })
+    }
+
+    protected formatLogicalParticipant(part: ast.LogicalParticipant): void {
+        this.formatContainer(part)
+    }
+
+    protected formatLogicalParticipantPathNode(pathBode: ast.LogicalParticipantPathNode): void {
+        this.formatContainer(pathBode)
+    }
+
+    protected formatLogicalCompositeQuery(query: ast.LogicalCompositeQuery): void {
+        this.formatContainer(query)
+        query.composition.forEach(comp => {
+            this.formatContainer(query)
+        })
+    }
+
+    protected formatPlatformElement(elem: ast.PlatformElement): void {
+        const formatter = this.getNodeFormatter(elem);
+        formatter.property('name').prepend(Formatting.newLine()).surround(Formatting.oneSpace({allowMore: true}));
+        this.formatObj(elem);   
+    }
+
+    protected formatPlatformEntity(entity: ast.PlatformEntity): void {
+        this.formatContainer(entity)
+        entity.composition.forEach(comp => {
+            this.formatContainer(comp)
+        })
+    }
+
+    protected formatPlatformStruct(str: ast.PlatformStruct): void {
+        this.formatContainer(str)
+        str.member.forEach(mem => {
+            this.formatContainer(mem)
+        })
+    }
+
+    protected formatPlatformAssociation(asso: ast.PlatformAssociation): void {
+        this.formatContainer(asso)
+        asso.participant.forEach(part => {
+            this.formatPlatformParticipant(part);
+        })
+    }
+
+    protected formatPlatformParticipant(part: ast.PlatformParticipant): void {
+        this.formatContainer(part)
+    }
+
+    protected formatPlatformCompositeQuery(query: ast.PlatformCompositeQuery): void {
+        this.formatContainer(query)
+        query.composition.forEach(comp => {
+            this.formatContainer(comp);
+        })
     }
 }
 
@@ -98,4 +288,3 @@ export const UniversalDataDefinitionLanguageModule: Module<UniversalDataDefiniti
         Formatter: () => new UniversalDataDefinitionLanguageFormatter()
     }
 };
-
